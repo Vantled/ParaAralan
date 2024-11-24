@@ -1,0 +1,1083 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.App {
+  text-align: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 2rem;
+  background-color: #f5f5f5;
+}
+
+.login-form,
+.register-form {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+}
+
+.login-form h2,
+.register-form h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.login-form form,
+.register-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-form input,
+.register-form input,
+.register-form select {
+  padding: 1rem 1.5rem;
+  border: 2px solid rgba(44, 62, 80, 0.1);
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.login-form input:focus,
+.register-form input:focus,
+.register-form select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.register-form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+}
+
+.login-form button[type="submit"],
+.register-form button[type="submit"] {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  font-size: 1.1rem;
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 25px;
+  color: #424242;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.login-form button[type="submit"]:hover,
+.register-form button[type="submit"]:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.login-form p,
+.register-form p {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+  font-family: 'Quicksand', sans-serif;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 1rem 2rem;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.08);
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.app-title:hover {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12);
+  transform: scale(1.01);
+}
+
+.info-window {
+  padding: 1rem 1rem 1rem 1rem;
+  padding-top: 1.5rem;
+  max-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 152, 219, 0.5) rgba(255, 255, 255, 0.1);
+  scroll-behavior: smooth;
+}
+
+.info-window p {
+  width: 100%;
+  text-align: left;
+  margin: 0.7rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding-right: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.info-window h3 {
+  margin: 0.5rem 0 1rem 0;
+  color: #2c3e50;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.2rem;
+  text-align: center;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.edit-button {
+  margin: 1rem 0 0.5rem 0;
+  width: calc(100% - 1rem);
+}
+
+.edit-button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db) !important;
+  color: white;
+}
+
+.info-window button {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 3rem;
+  border-radius: 20px;
+  position: relative;
+  min-width: 360px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transform: scale(0.95);
+  opacity: 0;
+  animation: modalIn 0.3s ease-out 0.1s forwards;
+  margin: 2rem;
+}
+
+.close-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 36px;
+  height: 36px;
+  font-size: 1.5rem;
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  cursor: pointer;
+  color: #424242;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 0;
+  line-height: 1;
+}
+
+.close-button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.auth-buttons button {
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  color: #424242;
+  font-weight: 500;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.auth-buttons button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.user-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-controls button {
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  color: #424242;
+  font-weight: 500;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.user-controls button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.user-controls h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+}
+
+.map-container {
+  width: 100%;
+  height: calc(100vh - 70px);
+  margin-top: 70px;
+}
+
+.static-map {
+  width: 100%;
+  height: 100%;
+  background-color: #e5e7eb;
+  position: relative;
+  cursor: pointer;
+}
+
+.map-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  font-size: 24px;
+  transition: transform 0.2s;
+}
+
+.map-marker:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.floating-info-window {
+  position: fixed;
+  right: 20px;
+  top: 90px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+  z-index: 1000;
+}
+
+.close-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-info:hover {
+  color: #333;
+}
+
+.login-form input::placeholder,
+.register-form input::placeholder {
+  color: #95a5a6;
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Add these styles for Leaflet */
+.leaflet-container {
+  width: 100vw;
+  height: calc(100vh - 70px);
+  margin-top: 70px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 15px 15px 15px 15px;
+  text-align: center;
+  width: 300px !important;
+  position: relative;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-popup-content h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.filter-controls {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 1rem;
+}
+
+.filter-controls input,
+.filter-controls select {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(44, 62, 80, 0.1);
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.school-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin: 0 auto 0.8rem;
+  display: block;
+}
+
+.website-link {
+  margin: 1.2rem 0 0.5rem 0;
+  width: calc(100% - 1rem);
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: block;
+  padding: 0.8rem 1.5rem;
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #424242;
+  text-decoration: none;
+  border-radius: 25px;
+  text-align: center;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.website-link:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.confirmation-buttons button {
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  color: #424242;
+  font-weight: 500;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.confirmation-buttons button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.map-view-control {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.map-view-control select {
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  border: 1px solid rgba(44, 62, 80, 0.1);
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-family: 'Quicksand', sans-serif;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+}
+
+.map-view-control select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.map-view-control select:hover {
+  background-color: rgba(255, 255, 255, 1);
+  border-color: #3498db;
+}
+
+/* Add notification styles */
+.notification {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'Quicksand', sans-serif;
+  animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+  background: linear-gradient(45deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+.notification.error {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: currentColor;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1rem;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Add keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes modalOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Add these classes for closing animations */
+.modal-backdrop.closing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.modal-content.closing {
+  animation: modalOut 0.3s ease-out forwards;
+}
+
+/* Add location button styles */
+.location-button {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  border: 1px solid rgba(44, 62, 80, 0.1);
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.location-button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+/* Update user location styles */
+.user-location-container {
+  position: relative;
+}
+
+.user-location-pulse {
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 122, 255, 0.2);  /* Apple blue with transparency */
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: locationPulse 2s infinite ease-out;
+}
+
+.user-location-arrow {
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #007AFF;  /* Apple blue */
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px white;  /* White border */
+  z-index: 1;
+}
+
+.user-location-arrow::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid #007AFF;  /* Apple blue */
+}
+
+.user-location-arrow::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes locationPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Add this to hide the Leaflet attribution */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* Add responsive adjustments */
+@media (max-width: 480px) {
+  .modal-content {
+    min-width: auto;
+    width: calc(100% - 2rem);
+    padding: 2rem;
+  }
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.modal-content h3 {
+  text-align: center;
+  color: #2c3e50;
+  font-family: 'Quicksand', sans-serif;
+  margin-bottom: 1rem;
+}
+
+/* Add styles for logout confirmation buttons */
+.confirmation-buttons .logout-yes {
+  background: rgba(231, 76, 60, 0.25);  /* Subtle red background */
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  color: #c0392b;  /* Darker red text */
+}
+
+.confirmation-buttons .logout-yes:hover {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);  /* Red gradient on hover */
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+  border: none;
+}
+
+.school-form {
+  padding: 1rem;
+}
+
+.school-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.school-form textarea {
+  min-height: 100px;
+  padding: 0.8rem;
+  border: 2px solid rgba(44, 62, 80, 0.1);
+  border-radius: 12px;
+  font-family: 'Quicksand', sans-serif;
+  resize: vertical;
+}
+
+.scholarship-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scholarship-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* Add custom pin styles */
+.custom-pin {
+  position: relative;
+}
+
+.pin-container {
+  position: relative;
+  width: 30px;
+  height: 30px;
+}
+
+.pin {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: #ff4444;
+  border: 2px solid white;
+  border-radius: 50% 50% 50% 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: bounce 0.5s ease-out;
+}
+
+.pin::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.pin-pulse {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 68, 68, 0.4);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translate(-50%, -100%) rotate(-45deg);
+  }
+  50% {
+    transform: translate(-50%, -35%) rotate(-45deg);
+  }
+  70% {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, 0) scale(3);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Make popup appear above other elements */
+.leaflet-popup {
+  z-index: 2000 !important;
+}
+
+.info-window p {
+  width: 100%;
+  text-align: left;
+  margin: 0.7rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding-right: 1rem;
+}
+
+/* Webkit scrollbar styles */
+.info-window::-webkit-scrollbar {
+  width: 6px;
+}
+
+.info-window::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.info-window::-webkit-scrollbar-thumb {
+  background: rgba(52, 152, 219, 0.5);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.info-window::-webkit-scrollbar-thumb:hover {
+  background: rgba(52, 152, 219, 0.8);
+}
+
+/* Add smooth scrolling */
+.info-window {
+  scroll-behavior: smooth;
+}
+
+/* Update popup and info window styles */
+.leaflet-popup-content {
+  margin: 0;
+  padding: 15px;
+  text-align: center;
+  width: 300px !important;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.info-window {
+  padding: 1.2rem 1.5rem;
+  max-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 152, 219, 0.5) rgba(255, 255, 255, 0.1);
+  scroll-behavior: smooth;
+}
+
+.info-window p {
+  width: 100%;
+  text-align: left;
+  margin: 0.7rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding-right: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.info-window h3 {
+  margin: 0.5rem 0 1rem 0;
+  color: #2c3e50;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.2rem;
+  text-align: center;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Update close button position and size */
+.leaflet-popup-close-button {
+  position: absolute !important;
+  right: 8px !important;
+  top: 8px !important;
+  padding: 4px !important;
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 14px !important;
+  color: #666 !important;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 !important;
+  z-index: 2001 !important;
+  cursor: pointer !important;
+  line-height: 0 !important;
+}
+
+.leaflet-popup-close-button:hover {
+  opacity: 1;
+  background: linear-gradient(45deg, #2c3e50, #3498db) !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Update website link spacing */
+.website-link {
+  margin: 1.2rem 0 0.5rem 0;
+  width: calc(100% - 1rem);
+}
+
+/* Update edit button spacing */
+.edit-button {
+  margin: 1rem 0 0.5rem 0;
+  width: calc(100% - 1rem);
+}
