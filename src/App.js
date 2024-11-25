@@ -9,6 +9,7 @@ import Notification from './components/Notification';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 import L from 'leaflet';
+import 'leaflet-routing-machine';
 import logo from './logo.png';
 import SchoolForm from './components/SchoolForm';
 
@@ -26,17 +27,22 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Update these constants for a wider Calamba-Los Baños area
+// Update these constants for showing Luzon but restricting movement
 const CALAMBA_LOSBANOS_BOUNDS = [
-  [14.1000, 121.1000], // Southwest coordinates (includes Calamba)
-  [14.2500, 121.3000]  // Northeast coordinates (includes Los Baños)
+  [14.0800, 121.0800], // Southwest coordinates (slightly more room)
+  [14.2700, 121.3200]  // Northeast coordinates (slightly more room)
 ];
 
-const MIN_ZOOM = 12;  // Decreased minimum zoom to show both areas
-const MAX_ZOOM = 18;
+const LUZON_VIEW_BOUNDS = [
+  [12.0000, 119.0000], // Southwest coordinates of Luzon
+  [18.5000, 122.0000]  // Northeast coordinates of Luzon
+];
+
+const MAX_ZOOM = 18;  // Maximum zoom level (closest)
+const MIN_ZOOM = 12;  // Minimum zoom level (6 levels from max: 18, 17, 16, 15, 14, 13, 12)
 const DEFAULT_CENTER = {
-  lat: 14.1746, // Adjusted center point between Calamba and Los Baños
-  lng: 121.2000  // Adjusted to center between both cities
+  lat: 14.1746,
+  lng: 121.2000
 };
 
 // Add this constant for pin types
@@ -76,6 +82,11 @@ function MapControls({ setUserLocation }) {
         },
         (error) => {
           console.error("Error getting location:", error);
+        },
+        {
+          enableHighAccuracy: true,  // Request high accuracy
+          timeout: 5000,  // Wait up to 5 seconds
+          maximumAge: 0  // Always get fresh location
         }
       );
     }
@@ -103,6 +114,26 @@ function UserLocationMarker({ position }) {
   ) : null;
 }
 
+// Add this custom zoom control component
+function CustomZoomControl({ map }) {
+  const handleZoomIn = () => {
+    map.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    if (map.getZoom() > MIN_ZOOM) {
+      map.zoomOut();
+    }
+  };
+
+  return (
+    <div className="custom-zoom-control">
+      <button onClick={handleZoomIn} className="zoom-button">+</button>
+      <button onClick={handleZoomOut} className="zoom-button">−</button>
+    </div>
+  );
+}
+
 // Create a new MapContent component that will be used inside MapContainer
 function MapContent({ 
   handleMapClick, 
@@ -118,7 +149,59 @@ function MapContent({
   currentMapView,
   mapLayers
 }) {
-  const map = useMap();  // This is now safe because it's inside MapContainer
+  const map = useMap();
+  const [routingControl, setRoutingControl] = useState(null);
+  const [showingDirections, setShowingDirections] = useState(false);
+
+  // Add cleanup effect for routing control
+  useEffect(() => {
+    return () => {
+      if (routingControl) {
+        routingControl.remove();
+      }
+    };
+  }, [routingControl]);
+
+  const showDirections = (schoolPosition) => {
+    if (userLocation) {
+      // Remove existing route if any
+      if (routingControl) {
+        routingControl.remove();
+        setRoutingControl(null);
+        setShowingDirections(false);
+      } else {
+        try {
+          // Create new route
+          const control = L.Routing.control({
+            waypoints: [
+              L.latLng(userLocation[0], userLocation[1]),
+              L.latLng(schoolPosition.lat, schoolPosition.lng)
+            ],
+            router: L.Routing.osrmv1({
+              serviceUrl: 'https://router.project-osrm.org/route/v1'
+            }),
+            routeWhileDragging: false,
+            lineOptions: {
+              styles: [
+                { color: '#3498db', opacity: 0.8, weight: 4 }
+              ]
+            },
+            show: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true,
+            createMarker: function() { return null; } // Remove waypoint markers
+          });
+
+          control.addTo(map);
+          setRoutingControl(control);
+          setShowingDirections(true);
+        } catch (error) {
+          console.error('Error showing directions:', error);
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     if (map) {
@@ -137,9 +220,12 @@ function MapContent({
         key={currentMapView}
         url={mapLayers[currentMapView].url}
         attribution={mapLayers[currentMapView].attribution}
-        bounds={CALAMBA_LOSBANOS_BOUNDS}
+        bounds={LUZON_VIEW_BOUNDS}  // Show Luzon map tiles
       />
-      <MapControls setUserLocation={setUserLocation} />
+      <div className="map-controls-container">
+        <CustomZoomControl map={map} />
+        <MapControls setUserLocation={setUserLocation} />
+      </div>
       {userLocation && (
         <Marker 
           position={userLocation}
@@ -152,7 +238,13 @@ function MapContent({
             iconSize: [24, 24],
             iconAnchor: [12, 12]
           })}
-        />
+        >
+          <Popup closeButton={true}>
+            <div className="info-window" style={{ padding: '0.5rem 1rem' }}>
+              <h3 style={{ margin: '0.5rem 0' }}>You are here</h3>
+            </div>
+          </Popup>
+        </Marker>
       )}
       {schools.map((school) => (
         <Marker
@@ -164,12 +256,27 @@ function MapContent({
           }}
         >
           {selectedSchool && selectedSchool.id === school.id && (
-            <Popup>
+            <Popup 
+              closeOnClick={true}  // Close when clicking outside
+              maxWidth={280} 
+              minWidth={280}
+              onClose={() => {
+                setSelectedSchool(null);  // Clear selected school
+                if (routingControl) {     // Remove routing if exists
+                  routingControl.remove();
+                  setRoutingControl(null);
+                  setShowingDirections(false);
+                }
+              }}
+            >
               <div className="info-window">
                 <img 
                   src={logo} 
                   alt={`${school.name} logo`} 
                   className="school-logo"
+                  loading="eager"
+                  width="70"
+                  height="70"
                 />
                 <h3>{school.name}</h3>
                 <p><strong>Type:</strong> {school.type.charAt(0).toUpperCase() + school.type.slice(1)}</p>
@@ -178,22 +285,35 @@ function MapContent({
                 <p><strong>Requirements:</strong> {school.requirements}</p>
                 <p><strong>Tuition Fees:</strong> {school.tuitionFees}</p>
                 <p><strong>Scholarships Available:</strong> {school.hasScholarship ? 'Yes' : 'No'}</p>
-                <a 
-                  href={school.websiteUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="website-link"
-                >
-                  Visit their website!
-                </a>
-                {user && userType === 'school' && selectedSchool.createdBy === user.uid && (
-                  <button 
-                    onClick={() => handleEditSchool(selectedSchool)}
-                    className="edit-button"
+                <div className="popup-buttons">
+                  <a 
+                    href={school.websiteUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="website-link"
+                    style={{ display: 'block' }}
                   >
-                    Edit Information
-                  </button>
-                )}
+                    Visit their website!
+                  </a>
+                  {userLocation && (
+                    <button
+                      onClick={() => showDirections(school.position)}
+                      className="directions-link"
+                      style={{ display: 'block' }}
+                    >
+                      {showingDirections ? 'Hide Directions' : 'Show Directions'}
+                    </button>
+                  )}
+                  {user && userType === 'school' && school.createdBy === user.uid && (
+                    <button 
+                      onClick={() => handleEditSchool(school)}
+                      className="edit-button"
+                      style={{ display: 'block' }}
+                    >
+                      Edit Information
+                    </button>
+                  )}
+                </div>
               </div>
             </Popup>
           )}
@@ -253,15 +373,16 @@ function Map(props) {
       </div>
 
       <MapContainer
-        center={initialPosition}
-        zoom={13}
+        center={[DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]}
+        zoom={15}  // Start at a middle zoom level
         style={{ height: 'calc(100vh - 70px)', marginTop: '70px' }}
+        onClick={props.handleMapClick}
         maxBounds={CALAMBA_LOSBANOS_BOUNDS}
-        maxBoundsViscosity={1.0}
-        minZoom={MIN_ZOOM}
+        maxBoundsViscosity={0.8}  // Reduced from 1.0 to allow more flexibility
+        minZoom={MIN_ZOOM}  // Will stop at 6 levels out from max
         maxZoom={MAX_ZOOM}
         doubleClickZoom={false}
-        boundsOptions={{ padding: [50, 50] }}
+        boundsOptions={{ padding: [100, 100] }}  // Increased padding
         wheelDebounceTime={100}
         wheelPxPerZoomLevel={100}
         zoomControl={false}
