@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Notification from './components/Notification';
@@ -12,6 +12,9 @@ import L from 'leaflet';
 import 'leaflet-routing-machine';
 import logo from './logo.png';
 import SchoolForm from './components/SchoolForm';
+import { onAuthStateChanged } from 'firebase/auth';
+import FilterControls from './components/FilterControls';
+import SchoolEditForm from './components/SchoolEditForm';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -27,21 +30,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Update these constants for showing Luzon but restricting movement
-const CALAMBA_LOSBANOS_BOUNDS = [
-  [14.0800, 121.0800], // Southwest coordinates (slightly more room)
-  [14.2700, 121.3200]  // Northeast coordinates (slightly more room)
-];
-
+// Update these constants for showing Luzon
 const LUZON_VIEW_BOUNDS = [
-  [12.0000, 119.0000], // Southwest coordinates of Luzon
-  [18.5000, 122.0000]  // Northeast coordinates of Luzon
+  [11.5000, 116.0000], // Southwest coordinates of Luzon (adjusted wider)
+  [19.0000, 124.0000]  // Northeast coordinates of Luzon (adjusted wider)
 ];
 
 const MAX_ZOOM = 18;  // Maximum zoom level (closest)
-const MIN_ZOOM = 12;  // Minimum zoom level (6 levels from max: 18, 17, 16, 15, 14, 13, 12)
+const MIN_ZOOM = 7;   // Minimum zoom level (adjusted to show more area)
 const DEFAULT_CENTER = {
-  lat: 14.1746,
+  lat: 14.1746,  // Changed back to Calamba/Los Baños center
   lng: 121.2000
 };
 
@@ -147,11 +145,21 @@ function MapContent({
   compassHeading,
   setUserLocation,
   currentMapView,
-  mapLayers
+  mapLayers,
+  isAdmin,
+  setMapRef
 }) {
   const map = useMap();
   const [routingControl, setRoutingControl] = useState(null);
   const [showingDirections, setShowingDirections] = useState(false);
+  const markerRef = useRef(null);
+
+  // Store map reference when component mounts
+  useEffect(() => {
+    if (map) {
+      setMapRef(map);
+    }
+  }, [map, setMapRef]);
 
   // Add cleanup effect for routing control
   useEffect(() => {
@@ -205,17 +213,26 @@ function MapContent({
 
   useEffect(() => {
     if (map) {
+      // Add or remove modal-active class based on selectedSchool
+      if (selectedSchool) {
+        map.getContainer().classList.add('modal-active');
+      } else {
+        map.getContainer().classList.remove('modal-active');
+      }
+      
       map.on('click', handleMapClick);
     }
     return () => {
       if (map) {
         map.off('click', handleMapClick);
+        map.getContainer().classList.remove('modal-active');
       }
     };
-  }, [map, handleMapClick]);
+  }, [map, handleMapClick, selectedSchool]);
 
   return (
     <>
+      <div className={`modal-overlay ${selectedSchool ? 'active' : ''}`} />
       <TileLayer
         key={currentMapView}
         url={mapLayers[currentMapView].url}
@@ -252,79 +269,144 @@ function MapContent({
           position={[school.position.lat, school.position.lng]}
           icon={customPin}
           eventHandlers={{
-            click: () => setSelectedSchool(school),
+            click: () => setSelectedSchool(school)
           }}
         >
-          {selectedSchool && selectedSchool.id === school.id && (
-            <Popup 
-              closeOnClick={true}  // Close when clicking outside
-              maxWidth={280} 
-              minWidth={280}
-              onClose={() => {
-                setSelectedSchool(null);  // Clear selected school
-                if (routingControl) {     // Remove routing if exists
-                  routingControl.remove();
-                  setRoutingControl(null);
-                  setShowingDirections(false);
-                }
-              }}
+          <div className="pin-container" data-school-id={school.id}>
+            <Tooltip 
+              permanent 
+              direction="top" 
+              offset={[0, -30]} 
+              className="school-name-label"
+              opacity={1}
             >
-              <div className="info-window">
-                <img 
-                  src={logo} 
-                  alt={`${school.name} logo`} 
-                  className="school-logo"
-                  loading="eager"
-                  width="70"
-                  height="70"
-                />
-                <h3>{school.name}</h3>
-                <p><strong>Type:</strong> {school.type.charAt(0).toUpperCase() + school.type.slice(1)}</p>
-                <p><strong>Contact:</strong> {school.contact}</p>
-                <p><strong>Courses:</strong> {school.courses.join(', ')}</p>
-                <p><strong>Requirements:</strong> {school.requirements}</p>
-                <p><strong>Tuition Fees:</strong> {school.tuitionFees}</p>
-                <p><strong>Scholarships Available:</strong> {school.hasScholarship ? 'Yes' : 'No'}</p>
-                <div className="popup-buttons">
-                  <a 
-                    href={school.websiteUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="website-link"
-                    style={{ display: 'block' }}
-                  >
-                    Visit their website!
-                  </a>
-                  {userLocation && (
-                    <button
-                      onClick={() => showDirections(school.position)}
-                      className="directions-link"
-                      style={{ display: 'block' }}
-                    >
-                      {showingDirections ? 'Hide Directions' : 'Show Directions'}
-                    </button>
-                  )}
-                  {user && userType === 'school' && school.createdBy === user.uid && (
-                    <button 
-                      onClick={() => handleEditSchool(school)}
-                      className="edit-button"
-                      style={{ display: 'block' }}
-                    >
-                      Edit Information
-                    </button>
-                  )}
-                </div>
-              </div>
-            </Popup>
-          )}
+              {school.name}
+            </Tooltip>
+          </div>
         </Marker>
       ))}
+      {selectedSchool && (
+        <div className="school-popup-modal active">
+          <button 
+            className="close-button" 
+            onClick={() => {
+              setSelectedSchool(null);
+              if (routingControl) {
+                routingControl.remove();
+                setRoutingControl(null);
+                setShowingDirections(false);
+              }
+            }}
+          >
+            ×
+          </button>
+          <div className="school-info-container">
+            <h2 className="school-title">{selectedSchool.name}</h2>
+            
+            <div className="location-info">
+              <span className="location-icon">📍</span>
+              <span>{selectedSchool.location}</span>
+            </div>
+
+            <div className="contact-info">
+              <div className="contact-item">
+                <span>📞</span>
+                <a href={`tel:${selectedSchool.contact}`}>{selectedSchool.contact}</a>
+              </div>
+              <button 
+                className="website-button"
+                onClick={() => window.open(selectedSchool.websiteUrl, '_blank')}
+              >
+                Visit Website
+              </button>
+            </div>
+
+            <div className="info-section">
+              <h3><span className="icon">🎓</span> Academic Programs Offered</h3>
+              <div className="programs-list">
+                {selectedSchool.academicPrograms?.map((college, index) => (
+                  <div key={index} className="college-item">
+                    <strong>{college.name}:</strong> {college.programs.join(', ')}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="info-section">
+              <h3><span className="icon">📝</span> Admission Requirements</h3>
+              {Object.entries(selectedSchool.admissionRequirements || {}).map(([type, requirements], index) => (
+                <div key={index} className="requirements-group">
+                  <strong>For {type}:</strong>
+                  <ul>
+                    {requirements.map((req, reqIndex) => (
+                      <li key={reqIndex}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="info-section">
+              <h3><span className="icon">💰</span> Tuition Fees</h3>
+              <div className="fees-list">
+                {Object.entries(selectedSchool.tuitionFees || {}).map(([fee, amount], index) => (
+                  <div key={index} className="fee-item">
+                    <span>{fee}:</span> <strong>₱{amount}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="info-section">
+              <h3><span className="icon">🎯</span> Scholarships Available</h3>
+              <ul className="scholarships-list">
+                {selectedSchool.scholarships?.map((scholarship, index) => (
+                  <li key={index}>{scholarship}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="info-section">
+              <h3><span className="icon">🏫</span> Campus Life</h3>
+              <div className="campus-info">
+                <div className="campus-item">
+                  <strong>Student Organizations:</strong>
+                  <p>{selectedSchool.campusLife?.organizations?.join(', ')}</p>
+                </div>
+                <div className="campus-item">
+                  <strong>Facilities:</strong>
+                  <p>{selectedSchool.campusLife?.facilities?.join(', ')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="action-buttons">
+              {userLocation && (
+                <button
+                  onClick={() => showDirections(selectedSchool.position)}
+                  className="direction-button"
+                >
+                  {showingDirections ? 'Hide Directions' : 'Show Directions'}
+                </button>
+              )}
+              {user && isAdmin && (
+                <button 
+                  onClick={() => handleEditSchool(selectedSchool)}
+                  className="edit-button"
+                >
+                  Edit Information
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
 
 // Update the Map component
-function Map(props) {
+function Map({ mapRef, ...props }) {
   const [currentMapView, setCurrentMapView] = useState('default');
   const [initialPosition, setInitialPosition] = useState([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]);
 
@@ -374,23 +456,29 @@ function Map(props) {
 
       <MapContainer
         center={[DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]}
-        zoom={15}  // Start at a middle zoom level
-        style={{ height: 'calc(100vh - 70px)', marginTop: '70px' }}
+        zoom={15}  // Changed back to original zoom level
+        style={{ 
+          height: window.innerWidth <= 768 ? 'calc(100vh - 140px)' : 'calc(100vh - 70px)', 
+          marginTop: window.innerWidth <= 768 ? '140px' : '70px' 
+        }}
         onClick={props.handleMapClick}
-        maxBounds={CALAMBA_LOSBANOS_BOUNDS}
-        maxBoundsViscosity={0.8}  // Reduced from 1.0 to allow more flexibility
-        minZoom={MIN_ZOOM}  // Will stop at 6 levels out from max
+        maxBounds={LUZON_VIEW_BOUNDS}
+        maxBoundsViscosity={0.8}  // Slightly reduced to make panning smoother
+        minZoom={MIN_ZOOM}
         maxZoom={MAX_ZOOM}
         doubleClickZoom={false}
-        boundsOptions={{ padding: [100, 100] }}  // Increased padding
+        boundsOptions={{ padding: [50, 50] }}
         wheelDebounceTime={100}
         wheelPxPerZoomLevel={100}
         zoomControl={false}
+        tap={true}
       >
         <MapContent 
           {...props} 
           currentMapView={currentMapView}
           mapLayers={mapLayers}
+          isAdmin={props.isAdmin}
+          setMapRef={(map) => mapRef.current = map}
         />
       </MapContainer>
     </>
@@ -398,15 +486,16 @@ function Map(props) {
 }
 
 function App() {
+  const mapRef = useRef(null);
   const [user, setUser] = useState(null);
-  const [userType, setUserType] = useState(null);
+  const [userType, setUserType] = useState('student');
   const [schools, setSchools] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [isAddingPin, setIsAddingPin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [filters, setFilters] = useState({
-    course: '',
+    type: '',
     hasScholarship: null
   });
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -420,6 +509,10 @@ function App() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showSchoolForm, setShowSchoolForm] = useState(false);
   const [newPinLocation, setNewPinLocation] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [schoolToEdit, setSchoolToEdit] = useState(null);
 
   useEffect(() => {
     // Fetch schools from Firebase
@@ -436,8 +529,39 @@ function App() {
     fetchSchools();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUser(user);
+        // Check admin status
+        checkAdminStatus(user);
+        
+        // Fetch user data from Firestore
+        const db = getFirestore();
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUserName(userData.firstName || user.email);
+            setUserType(userData.userType);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUserName(user.email);
+        }
+      } else {
+        setUser(null);
+        setUserName('');
+        setUserType(null);
+        setIsAdmin(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const handleMapClick = async (event) => {
-    if (isAddingPin && userType === 'school' && user) {
+    if (isAddingPin && isAdmin) {
       const clickedPosition = event.latlng;
       setNewPinLocation(clickedPosition);
       setShowSchoolForm(true);
@@ -483,79 +607,50 @@ function App() {
     }
   };
 
-  const handleEditSchool = async (school) => {
-    if (userType === 'school' && school.createdBy === user.uid) {
-      const schoolType = prompt('Enter school type (university/college):', school.type).toLowerCase();
-      
-      if (schoolType !== 'university' && schoolType !== 'college') {
-        showNotification('Please enter either "university" or "college"', 'error');
-        return;
-      }
-
-      const updatedSchool = {
-        ...school,
-        type: schoolType,
-        name: prompt('Enter school name:', school.name),
-        logo: prompt('Enter logo URL:', school.logo),
-        contact: prompt('Enter contact information:', school.contact),
-        courses: prompt('Enter courses offered (comma-separated):', school.courses.join(',')).split(',').map(course => course.trim()),
-        requirements: prompt('Enter enrollment requirements:', school.requirements),
-        tuitionFees: prompt('Enter tuition fees:', school.tuitionFees),
-        websiteUrl: prompt('Enter school website URL:', school.websiteUrl)
-      };
-
-      try {
-        const schoolRef = doc(db, 'schools', school.id);
-        await updateDoc(schoolRef, updatedSchool);
-        
-        setSchools(schools.map(s => 
-          s.id === school.id ? updatedSchool : s
-        ));
-        
-        setSelectedSchool(updatedSchool);
-        showNotification('School information updated successfully!');
-      } catch (error) {
-        console.error("Error updating school: ", error);
-        showNotification('Failed to update school information', 'error');
-      }
+  const handleEditSchool = (school) => {
+    if (isAdmin) {
+      setSchoolToEdit(school);
+      setShowEditForm(true);
     }
   };
 
+  const handleEditSubmit = async (updatedData) => {
+    try {
+      const schoolRef = doc(db, 'schools', schoolToEdit.id);
+      await updateDoc(schoolRef, updatedData);
+      
+      setSchools(schools.map(s => 
+        s.id === schoolToEdit.id ? { ...s, ...updatedData } : s
+      ));
+      
+      setSelectedSchool({ ...schoolToEdit, ...updatedData });
+      setShowEditForm(false);
+      setSchoolToEdit(null);
+      showNotification('School information updated successfully!');
+    } catch (error) {
+      console.error("Error updating school: ", error);
+      showNotification('Failed to update school information', 'error');
+    }
+  };
+
+  // Get filtered schools based on current filters
   const filteredSchools = schools.filter(school => {
-    if (filters.course && !school.courses.some(course => 
-      course.toLowerCase().includes(filters.course.toLowerCase())
-    )) {
+    // Type filter
+    if (filters.type && !school.type?.toLowerCase().includes(filters.type.toLowerCase())) {
       return false;
     }
-    if (filters.hasScholarship !== null && school.hasScholarship !== filters.hasScholarship) {
-      return false;
+    
+    // Scholarship filter
+    if (filters.hasScholarship !== null) {
+      // Check if school has scholarships array and it's not empty
+      const hasScholarships = school.scholarships && school.scholarships.length > 0;
+      if (filters.hasScholarship !== hasScholarships) {
+        return false;
+      }
     }
+    
     return true;
   });
-
-  const FilterControls = () => {
-    return (
-      <div className="filter-controls">
-        <input
-          type="text"
-          placeholder="Search by course (e.g., CCS)"
-          value={filters.course}
-          onChange={(e) => setFilters(prev => ({ ...prev, course: e.target.value }))}
-        />
-        <select
-          value={filters.hasScholarship === null ? '' : filters.hasScholarship}
-          onChange={(e) => setFilters(prev => ({
-            ...prev,
-            hasScholarship: e.value === '' ? null : e.value === 'true'
-          }))}
-        >
-          <option value="">All Schools</option>
-          <option value="true">With Scholarship</option>
-          <option value="false">Without Scholarship</option>
-        </select>
-      </div>
-    );
-  };
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
@@ -580,27 +675,24 @@ function App() {
 
   useEffect(() => {
     let watchId;
+    let orientationHandler;  // Define a reference to store the handler
 
-    const handleOrientation = (event) => {
+    const handleOrientation = (event) => {  // Define the handler
       let heading;
-      
       if (event.webkitCompassHeading) {
-        // For iOS devices
         heading = event.webkitCompassHeading;
       } else if (event.alpha) {
-        // For Android devices
         heading = 360 - event.alpha;
       }
-
       if (heading !== undefined) {
         setCompassHeading(heading);
       }
     };
+    orientationHandler = handleOrientation;  // Store the reference
 
     if (userLocation) {
       if (window.DeviceOrientationEvent) {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-          // iOS 13+ devices
           DeviceOrientationEvent.requestPermission()
             .then(permissionState => {
               if (permissionState === 'granted') {
@@ -609,12 +701,10 @@ function App() {
             })
             .catch(console.error);
         } else {
-          // Non iOS 13+ devices
           window.addEventListener('deviceorientation', handleOrientation);
         }
       }
 
-      // Watch position for more accurate location updates
       watchId = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
@@ -625,9 +715,14 @@ function App() {
       );
     }
 
+    // Cleanup function
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-      if (watchId) navigator.geolocation.clearWatch(watchId);
+      if (window.DeviceOrientationEvent) {
+        window.removeEventListener('deviceorientation', orientationHandler);
+      }
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
     };
   }, [userLocation]);
 
@@ -642,6 +737,85 @@ function App() {
     showNotification('Successfully logged out!');
   };
 
+  // Add this function to check if the logged-in user is an admin
+  const checkAdminStatus = async (user) => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+
+    // You can store admin UIDs in Firebase or check against a specific email domain
+    const adminEmails = ['andrei@admin.com']; // Change this to your actual admin email
+    setIsAdmin(adminEmails.includes(user.email));
+  };
+
+  // Add this function to handle location button click
+  const handleLocationRequest = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+          
+          // Define handleOrientation function
+          const handleOrientation = (event) => {
+            let heading;
+            if (event.webkitCompassHeading) {
+              heading = event.webkitCompassHeading;
+            } else if (event.alpha) {
+              heading = 360 - event.alpha;
+            }
+            if (heading !== undefined) {
+              setCompassHeading(heading);
+            }
+          };
+          
+          // Request device orientation permission only after location is granted
+          if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+              .then(permissionState => {
+                if (permissionState === 'granted') {
+                  window.addEventListener('deviceorientation', handleOrientation);
+                }
+              })
+              .catch(console.error);
+          }
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          showNotification("Unable to access location. Please enable location services.", "error");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      showNotification("Geolocation is not supported by your browser", "error");
+    }
+  };
+
+  const handleSchoolSearch = (school) => {
+    console.log('handleSchoolSearch called with:', school);
+    if (school && school.position && mapRef.current) {
+      mapRef.current.flyTo([school.position.lat, school.position.lng], 16, {
+        duration: 1.5,
+        easeLinearity: 0.25
+      });
+      
+      setSelectedSchool(school);
+      
+      const marker = document.querySelector(`[data-school-id="${school.id}"]`);
+      if (marker) {
+        marker.classList.add('highlight-pin');
+        setTimeout(() => {
+          marker.classList.remove('highlight-pin');
+        }, 2000);
+      }
+    }
+  };
+
   return (
     <div className="App">
       <div className="header">
@@ -651,8 +825,8 @@ function App() {
         </div>
         {user ? (
           <div className="user-controls">
-            <h2>Welcome, {user.email}</h2>
-            {userType === 'school' && (
+            <h2>Welcome, {userName}</h2>
+            {isAdmin && (
               <button onClick={() => setIsAddingPin(!isAddingPin)}>
                 {isAddingPin ? 'Cancel Adding Pin' : 'Add School Pin'}
               </button>
@@ -667,7 +841,14 @@ function App() {
         )}
       </div>
 
-      {userType === 'student' && <FilterControls />}
+      {userType === 'student' && (
+        <FilterControls 
+          filters={filters} 
+          setFilters={setFilters}
+          schools={schools}
+          onSchoolSelect={handleSchoolSearch}
+        />
+      )}
 
       {/* Add modal states and components */}
       {showLoginModal && (
@@ -743,7 +924,21 @@ function App() {
         </div>
       )}
 
+      {showEditForm && (
+        <div className="modal-backdrop">
+          <div className="modal-content large-modal">
+            <button className="close-button" onClick={() => setShowEditForm(false)}>×</button>
+            <SchoolEditForm
+              school={schoolToEdit}
+              onSubmit={handleEditSubmit}
+              onCancel={() => setShowEditForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
       <Map
+        mapRef={mapRef}
         handleMapClick={handleMapClick}
         schools={filteredSchools}
         setSelectedSchool={setSelectedSchool}
@@ -754,6 +949,7 @@ function App() {
         userLocation={userLocation}
         compassHeading={compassHeading}
         setUserLocation={setUserLocation}
+        isAdmin={isAdmin}
       />
 
       {notification && (
