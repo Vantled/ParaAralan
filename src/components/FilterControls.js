@@ -28,23 +28,14 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect }) {
     setShowSearchResults(false);
   };
 
-  // Move getFilteredSchools outside the component and export it
-  const filteredSchools = schools.filter(school => {
-    // Type filter
-    if (filters.type && !school.type?.toLowerCase().includes(filters.type.toLowerCase())) {
-      return false;
-    }
-    
-    // Scholarship filter
-    if (filters.hasScholarship !== null) {
-      // Check if school has scholarships array and it's not empty
-      const hasScholarships = school.scholarships && school.scholarships.length > 0;
-      if (filters.hasScholarship !== hasScholarships) {
-        return false;
-      }
-    }
-    
-    return true;
+  // Filter schools based on search term - match only from the beginning of strings
+  const searchResults = schools.filter(school => {
+    const term = searchTerm.toLowerCase();
+    return (
+      school.name.toLowerCase().startsWith(term) ||
+      school.location?.toLowerCase().startsWith(term) ||
+      school.type?.toLowerCase().startsWith(term)
+    );
   });
 
   useEffect(() => {
@@ -73,15 +64,21 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect }) {
         />
         {showSearchResults && searchTerm && (
           <div className="search-results">
-            {filteredSchools.map((school) => (
-              <div
-                key={school.id}
-                className="search-result-item"
-                onClick={() => handleSchoolSelect(school)}
-              >
-                {school.name}
+            {searchResults.length > 0 ? (
+              searchResults.map((school) => (
+                <div
+                  key={school.id}
+                  className="search-result-item"
+                  onClick={() => handleSchoolSelect(school)}
+                >
+                  {school.name}
+                </div>
+              ))
+            ) : (
+              <div className="search-result-item no-results">
+                No schools found
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
