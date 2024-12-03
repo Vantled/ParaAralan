@@ -48,6 +48,9 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification }) {
     communicationPreference: []
   });
 
+  // Add loading states
+  const [isLoading, setIsLoading] = useState(false);
+
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
@@ -132,8 +135,7 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
+    setIsLoading(true);
     try {
       const auth = getAuth();
       const db = getFirestore();
@@ -155,9 +157,12 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification }) {
       setUserType('student');
       showNotification('Registration successful!');
       onClose();
+      window.location.reload();
     } catch (error) {
       console.error("Registration error:", error);
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -360,8 +365,15 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification }) {
               Next
             </button>
           ) : (
-            <button type="submit" className="submit-button">
-              Complete Registration
+            <button type="submit" className="submit-button" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <span className="button-spinner"></span>
+                  Registering...
+                </>
+              ) : (
+                'Complete Registration'
+              )}
             </button>
           )}
         </div>

@@ -1,30 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import useHistory from '../hooks/useHistory';
 
-function SchoolEditForm({ school, onSubmit, onCancel }) {
-  const [formData, setFormData] = useState({
-    name: school.name || '',
-    type: school.type || '',
-    location: school.location || '',
-    contact: school.contact || '',
-    websiteUrl: school.websiteUrl || '',
-    academicPrograms: school.academicPrograms || [],
-    admissionRequirements: school.admissionRequirements || {},
-    tuitionFees: school.tuitionFees || {},
-    scholarships: school.scholarships || [],
-    campusLife: school.campusLife || { organizations: [], facilities: [] }
-  });
+// Add these styles for the history buttons
+const historyButtonStyles = {
+  background: 'white',
+  border: '1px solid rgba(0, 0, 0, 0.1)',
+  borderRadius: '6px',
+  width: '40px',
+  height: '40px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.2s ease',
+  color: '#2c3e50',
+  fontSize: '1.2rem',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+};
 
-  const handleSubmit = (e) => {
+function SchoolEditForm({ school, onSubmit, onCancel, showNotification }) {
+  const {
+    state: formData,
+    setState: setFormData,
+    undo,
+    redo,
+    canUndo,
+    canRedo
+  } = useHistory(school);
+
+  // Add keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo]);
+
+  // Add loading state
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.type !== 'university' && formData.type !== 'college') {
-      alert('School type must be either "university" or "college"');
-      return;
+    setIsSaving(true);
+    try {
+      await onSubmit(formData);
+      showNotification('Changes saved successfully!');
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      showNotification(error.message, 'error');
+    } finally {
+      setIsSaving(false);
     }
-    onSubmit(formData);
   };
 
   return (
     <div className="school-edit-form">
+      <div className="history-controls">
+        <button
+          className="history-button"
+          onClick={undo}
+          disabled={!canUndo}
+          data-tooltip="Undo (Ctrl+Z)"
+        >
+          ↩
+        </button>
+        <button
+          className="history-button"
+          onClick={redo}
+          disabled={!canRedo}
+          data-tooltip="Redo (Ctrl+Shift+Z)"
+        >
+          ↪
+        </button>
+      </div>
       <h2>Edit School Information</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-section">
@@ -91,13 +147,13 @@ function SchoolEditForm({ school, onSubmit, onCancel }) {
                 placeholder="College Name"
               />
               <textarea
-                value={program.programs.join(', ')}
+                value={program.programs.join('\n')}
                 onChange={(e) => {
                   const newPrograms = [...formData.academicPrograms];
-                  newPrograms[index].programs = e.target.value.split(',').map(p => p.trim());
+                  newPrograms[index].programs = e.target.value.split('\n');
                   setFormData({ ...formData, academicPrograms: newPrograms });
                 }}
-                placeholder="Programs (comma-separated)"
+                placeholder="Enter programs (one per line)"
               />
               <button
                 type="button"
@@ -297,11 +353,26 @@ function SchoolEditForm({ school, onSubmit, onCancel }) {
         </div>
 
         <div className="form-buttons">
-          <button type="button" onClick={onCancel} className="cancel-button">
+          <button 
+            type="button" 
+            onClick={onCancel}
+            className="cancel-button"
+            disabled={isSaving}
+          >
             Cancel
           </button>
-          <button type="submit" className="save-button">
-            Save Changes
+          <button 
+            type="submit" 
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <span className="button-spinner"></span>
+                Saving Changes...
+              </>
+            ) : (
+              'Save Changes'
+            )}
           </button>
         </div>
       </form>

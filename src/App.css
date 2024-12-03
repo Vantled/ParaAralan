@@ -221,13 +221,31 @@ body {
 }
 
 .edit-button {
-  margin: 1rem 0 0.5rem 0;
-  width: calc(100% - 1rem);
+  background: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+  border: 1px solid rgba(46, 204, 113, 0.2);
+  transform: translateY(0);
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Quicksand', sans-serif;
+  letter-spacing: 0.5px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .edit-button:hover {
-  background: linear-gradient(45deg, #2c3e50, #3498db) !important;
+  background: linear-gradient(45deg, #2ecc71, #27ae60);
   color: white;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+  border: none;
 }
 
 .info-window button {
@@ -245,10 +263,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
-  opacity: 0;
-  animation: fadeIn 0.3s ease-out forwards;
-  overflow: hidden;
+  z-index: 1999;
 }
 
 .modal-content {
@@ -435,6 +450,7 @@ body {
   margin-top: 70px;
   z-index: 1;
   overflow: hidden;
+  pointer-events: auto !important;
 }
 
 .leaflet-popup-content {
@@ -497,6 +513,7 @@ body {
   border-color: #3498db;
 }
 
+/* Dropdown animation styles */
 .dropdown-content {
   position: absolute;
   top: calc(100% + 0.5rem);
@@ -507,13 +524,36 @@ body {
   min-width: 120px;
   z-index: 1001;
   border: 1px solid #e9ecef;
+  
+  /* Animation properties */
+  transform-origin: top;
+  opacity: 0;
+  transform: translateY(-10px) scaleY(0.95);
+  transition: all 0.2s cubic-bezier(0.5, 0, 0, 1.25);
+  pointer-events: none;
 }
 
+.dropdown-content.show {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  pointer-events: auto;
+}
+
+/* Animate dropdown items */
 .dropdown-content div {
   padding: 0.7rem 1rem;
   cursor: pointer;
   font-size: 0.9rem;
   color: #495057;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.2s ease;
+  transition-delay: calc(var(--item-index) * 0.05s);
+}
+
+.dropdown-content.show div {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .dropdown-content div:hover {
@@ -667,6 +707,7 @@ body {
   gap: 1rem;
   font-family: 'Quicksand', sans-serif;
   animation: slideIn 0.3s ease-out;
+  max-width: 400px;
 }
 
 .notification.success {
@@ -677,6 +718,19 @@ body {
 .notification.error {
   background: linear-gradient(45deg, #e74c3c, #c0392b);
   color: white;
+}
+
+.notification.info {
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  color: white;
+  font-weight: 500;
+}
+
+/* Add a pointer icon to the info notification */
+.notification.info::before {
+  content: "👆";
+  margin-right: 8px;
+  font-size: 1.2em;
 }
 
 .notification-close {
@@ -755,7 +809,7 @@ body {
   position: fixed;
   bottom: 80px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2500; /* Increased to be above modal */
   background: rgba(255, 255, 255, 0.95);
   padding: 0.8rem 1.5rem;
   border-radius: 25px;
@@ -1233,10 +1287,11 @@ body {
   position: fixed;
   bottom: 100px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2500; /* Increased z-index to be above modal */
   display: flex;
   flex-direction: column;
   gap: 10px;
+  pointer-events: auto !important; /* Ensure controls are always clickable */
 }
 
 .custom-zoom-control {
@@ -1247,7 +1302,8 @@ body {
   flex-direction: column;
   gap: 5px;
   background: transparent;
-  z-index: 1000;
+  z-index: 2500; /* Increased z-index to be above modal */
+  pointer-events: auto !important; /* Ensure controls are always clickable */
 }
 
 .zoom-button {
@@ -1266,6 +1322,7 @@ body {
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0;
+  pointer-events: auto !important; /* Ensure buttons are always clickable */
 }
 
 .zoom-button:hover {
@@ -1303,6 +1360,7 @@ body {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   width: calc(100% - 1rem);
+  pointer-events: auto !important; /* Ensure buttons are always clickable */
 }
 
 .directions-link:hover {
@@ -1677,151 +1735,76 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 98%;
-  max-width: 1200px; /* Increased from 1000px */
-  max-height: 90vh;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
   z-index: 2000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  pointer-events: all;
+  overflow-y: auto; /* Ensure vertical scrolling is enabled */
 }
 
 .school-popup-modal.active {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
+  cursor: default; /* Add this */
 }
 
-/* Update the school info container inside the modal */
-.school-popup-modal .school-info-container {
-  flex: 1;
-  overflow-y: auto;
-  margin: 0;
-  border-radius: 0;
+/* Update school info container styles */
+.school-info-container {
   padding: 2rem;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  position: relative;
+  z-index: 1601;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 152, 219, 0.5) rgba(255, 255, 255, 0.1);
   width: 100%;
   box-sizing: border-box;
-}
-
-/* Adjust close button position */
-.school-popup-modal .close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 2100;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  .school-popup-modal {
-    width: 95%;
-    max-height: 85vh;
-  }
-
-  .school-popup-modal .school-info-container {
-    padding: 1.5rem;
-  }
-}
-
-/* Update info window styles */
-.school-popup-modal .info-window {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  height: 100%;
-  min-height: calc(100vh - 110px);
-  width: calc(100% + 40px);
-  margin: -20px;
-  padding: 20px;
-  align-self: center;
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-  pointer-events: auto;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-/* Content container */
-.school-popup-modal .info-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: scroll;
-  padding-right: 10px;
-  margin-bottom: 20px;
-  width: 100%;
-  pointer-events: auto;
-  isolation: isolate;
-  z-index: 1700;
-  overscroll-behavior: contain;
+  pointer-events: all !important;
+  overscroll-behavior: contain; /* Prevent scroll propagation */
   -webkit-overscroll-behavior: contain;
+  touch-action: pan-y pinch-zoom; /* Allow vertical scroll but prevent zoom */
 }
 
-.school-popup-modal .school-logo {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 1.5rem;
+/* Style the scrollbar */
+.school-info-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Buttons container */
-.school-popup-modal .popup-buttons {
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  width: 100%;
-  margin-top: auto;
-  padding-right: 10px;
+.school-info-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
-/* Update scrollbar styles */
-.school-popup-modal .info-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.school-popup-modal .info-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
-}
-
-.school-popup-modal .info-content::-webkit-scrollbar-thumb {
+.school-info-container::-webkit-scrollbar-thumb {
   background: rgba(52, 152, 219, 0.5);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
-.school-popup-modal .info-content::-webkit-scrollbar-thumb:hover {
+.school-info-container::-webkit-scrollbar-thumb:hover {
   background: rgba(52, 152, 219, 0.7);
 }
 
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
-  .school-popup-modal .info-window {
-    min-height: calc(80vh - 40px);
-  }
-}
-
-/* Update overlay to block all map interactions */
-.modal-overlay {
+/* Update modal backdrop */
+.modal-backdrop {
   position: fixed;
-  top: 70px;
-  left: 350px;
-  right: 0;
-  bottom: 0;
-  background: transparent;
-  z-index: 1500;
-  display: none;
-  cursor: default;
-  pointer-events: all;
-  touch-action: none; /* Prevent touch events */
-  user-select: none; /* Prevent selection */
-}
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-.modal-overlay.active {
-  display: block;
 }
 
 /* Update school popup modal */
@@ -1830,41 +1813,44 @@ body {
   left: 0;
   top: 70px;
   bottom: 0;
-  width: 350px;
+  width: 450px;
   background: white;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1600;
+  z-index: 1200; /* Lower z-index to be below other modals */
   transform: translateX(-100%) scale(0.95);
   opacity: 0;
   display: flex;
   flex-direction: column;
-  pointer-events: auto;
-  touch-action: auto;
-  user-select: text;
+  pointer-events: all !important;
   padding: 20px;
-  visibility: visible;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-              opacity 0.3s ease,
-              scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  isolation: isolate;
+  visibility: hidden; /* Start hidden */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Active state */
 .school-popup-modal.active {
   transform: translateX(0) scale(1);
   opacity: 1;
-  overscroll-behavior: contain;
-  -webkit-overscroll-behavior: contain;
+  visibility: visible;
+}
+
+/* Hidden state - when other modals are active */
+.school-popup-modal.hidden {
+  transform: translateX(-100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* Add this to prevent map interactions when modal is active */
 .leaflet-container {
   position: relative;
   z-index: 1;
+  pointer-events: auto !important;
 }
 
 .leaflet-container.modal-active {
-  pointer-events: none !important;
-  touch-action: none !important;
+  pointer-events: auto !important;
 }
 
 /* Update styles for school name label */
@@ -2057,719 +2043,2324 @@ body {
   }
 }
 
-/* Add placeholder styles */
-.form-step input::placeholder {
-  color: #95a5a6;
-  opacity: 0.8;
-}
+  /* Add placeholder styles */
+  .form-step input::placeholder {
+    color: #95a5a6;
+    opacity: 0.8;
+  }
 
-/* Update registration form button styles */
-.form-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 2rem;
-  width: 100%;
-}
-
-.back-button,
-.next-button,
-.submit-button {
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  background: rgba(128, 128, 128, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 25px;
-  color: #424242;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Quicksand', 'Segoe UI', sans-serif;
-  letter-spacing: 0.5px;
-  min-width: 120px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.back-button {
-  margin-right: auto;
-}
-
-.next-button,
-.submit-button {
-  margin-left: auto;
-}
-
-.back-button:hover,
-.next-button:hover,
-.submit-button:hover {
-  background: linear-gradient(45deg, #2c3e50, #3498db);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
+  /* Update registration form button styles */
   .form-buttons {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
   }
 
   .back-button,
   .next-button,
   .submit-button {
-    padding: 0.7rem 1.2rem;
-    font-size: 0.95rem;
-    min-width: 100px;
-  }
-}
-
-/* Search styles */
-.search-container {
-  position: relative;
-  width: 300px;
-}
-
-.search-input {
-  width: 100%;
-  height: 36px; /* Fixed height */
-  padding: 0 12px 0 40px; /* Increased left padding to accommodate larger icon */
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 36px;
-  color: #1a202c;
-  background: white;
-  transition: all 0.2s ease;
-  box-sizing: border-box; /* Ensure padding is included in width */
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #3182ce;
-  box-shadow: 0 0 0 1px #3182ce;
-}
-
-.search-input::placeholder {
-  color: #a0aec0;
-}
-
-/* Update search icon position */
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 42%;
-  transform: translateY(-50%);
-  color: #a0aec0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  font-size: 28px; /* Increased from 24px */
-  line-height: 36px;
-  width: 28px; /* Increased to match new font size */
-  height: 36px;
-}
-
-.search-icon svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* Update filter dropdowns */
-.filter-dropdown button {
-  padding: 8px 12px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #1a202c;
-  min-width: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.filter-dropdown button::after {
-  content: "▼";
-  font-size: 10px;
-  color: #a0aec0;
-  margin-left: 8px;
-}
-
-/* Update filter controls container */
-.filter-controls {
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: flex;
-  gap: 20px; /* Increased gap between elements */
-  align-items: center;
-  padding: 12px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* Update dropdown content */
-.dropdown-content {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: 140px;
-  z-index: 1001;
-}
-
-.dropdown-content div {
-  padding: 0.7rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #495057;
-}
-
-.dropdown-content div:hover {
-  background: #f8f9fa;
-}
-
-/* Add pin highlight animation */
-@keyframes pinHighlight {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.3);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.highlight-pin {
-  animation: pinHighlight 1s ease-out;
-}
-
-/* Update the pin container for the highlight effect */
-.pin-container.highlight-pin .pin {
-  background: #3498db;
-  box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
-}
-
-.pin-container.highlight-pin .pin-pulse {
-  background: rgba(52, 152, 219, 0.4);
-}
-
-/* Make the large modal wider */
-.large-modal {
-  max-width: 1200px !important; /* Increased from 1000px */
-  width: 98% !important;
-  height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.school-edit-form {
-  padding: 1rem;
-}
-
-.school-edit-form h2 {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.form-section {
-  margin-bottom: 2.5rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-}
-
-.form-section h3 {
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #34495e;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.program-entry {
-  display: grid;
-  grid-template-columns: 2.5fr 4fr auto; /* Adjusted ratio for wider content */
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  align-items: start;
-}
-
-.program-entry textarea {
-  min-height: 100px;
-  width: 100%;
-  resize: vertical;
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.save-button,
-.cancel-button {
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  font-family: 'Quicksand', sans-serif;
-  transition: all 0.3s ease;
-}
-
-.save-button {
-  background: linear-gradient(45deg, #2c3e50, #3498db);
-  color: white;
-  border: none;
-}
-
-.save-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.cancel-button {
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-  color: #2c3e50;
-}
-
-.cancel-button:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.requirement-entry,
-.fee-entry,
-.scholarship-entry {
-  display: grid;
-  grid-template-columns: 2.5fr 4fr auto; /* Adjusted ratio for wider content */
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  align-items: start;
-}
-
-.requirement-entry textarea,
-.fee-entry input[type="text"],
-.scholarship-entry input[type="text"] {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.requirement-entry textarea {
-  min-height: 100px;
-  width: 100%;
-  resize: vertical;
-}
-
-.form-section button[type="button"] {
-  padding: 0.6rem 1.2rem;
-  background: rgba(52, 152, 219, 0.1);
-  border: 1px solid rgba(52, 152, 219, 0.2);
-  border-radius: 8px;
-  color: #2c3e50;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.form-section button[type="button"]:hover {
-  background: rgba(52, 152, 219, 0.2);
-  transform: translateY(-1px);
-}
-
-.form-section > button[type="button"] {
-  margin-top: 1rem;
-  width: 100%;
-}
-
-.school-info-container {
-  padding: 2rem;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  background: white;
-  border-radius: 12px;
-  overflow-y: auto;
-}
-
-.school-title {
-  font-size: 1.5rem; /* Reduced from 1.8rem */
-  color: #1a1a1a;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.location-info {
-  font-size: 0.9rem; /* Added font size */
-  color: #666;
-}
-
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem; /* Reduced from 1rem */
-}
-
-.contact-item a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-.website-button {
-  padding: 0.75rem 1.8rem;
-  min-width: 200px;
-  border-radius: 30px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Quicksand', sans-serif;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  height: 45px;
-  margin: 0 auto; /* Center the button */
-}
-
-.website-button:hover {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-}
-
-.info-section {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.info-section:last-child {
-  border-bottom: none;
-}
-
-.info-section h3 {
-  font-size: 1.1rem; /* Reduced from 1.2rem */
-  margin-bottom: 0.8rem; /* Slightly reduced margin */
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #1a1a1a;
-}
-
-.icon {
-  font-size: 1rem; /* Reduced from 1.2rem */
-}
-
-.programs-list,
-.requirements-group,
-.fees-list,
-.scholarships-list,
-.campus-info {
-  font-size: 0.9rem; /* Added consistent font size */
-  color: #4b5563;
-}
-
-.college-item,
-.fee-item {
-  margin-bottom: 0.5rem;
-}
-
-.requirements-group ul {
-  margin-top: 0.5rem;
-  padding-left: 1.5rem;
-}
-
-.requirements-group li {
-  margin-bottom: 0.25rem;
-}
-
-.campus-item {
-  margin-bottom: 1rem;
-}
-
-.campus-item strong {
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.direction-button,
-.edit-button,
-.website-button {
-  font-size: 0.9rem; /* Reduced from 0.95rem */
-  padding: 0.7rem 1.6rem; /* Slightly reduced padding */
-  min-width: 180px; /* Slightly reduced from 200px */
-  height: 42px; /* Reduced from 45px */
-  border-radius: 30px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Quicksand', sans-serif;
-  letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.direction-button {
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
-  border: none;
-}
-
-.direction-button:hover {
-  background: linear-gradient(135deg, #2980b9, #2573a7);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-}
-
-.edit-button {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  color: #2c3e50;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.edit-button:hover {
-  background: linear-gradient(135deg, #e9ecef, #dee2e6);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.website-button {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  border: none;
-  width: auto;
-}
-
-.website-button:hover {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-}
-
-/* Add icons to buttons */
-.direction-button::before,
-.edit-button::before,
-.website-button::before {
-  font-size: 1.1rem;
-  margin-right: 0.5rem;
-  flex-shrink: 0; /* Prevent icon from shrinking */
-}
-
-/* Update action buttons container */
-.action-buttons {
-  display: flex;
-  gap: 1.2rem;
-  margin-top: 2rem;
-  justify-content: center; /* Center the buttons */
-  flex-wrap: wrap;
-}
-
-/* Add button press effect */
-.direction-button:active,
-.edit-button:active,
-.website-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Add focus styles */
-.direction-button:focus,
-.edit-button:focus,
-.website-button:focus {
-  outline: none;
-  ring: 2px solid rgba(37, 99, 235, 0.5);
-  ring-offset: 2px;
-}
-
-/* Mobile adjustments */
-@media (max-width: 640px) {
-  .action-buttons {
-    flex-direction: column;
-    align-items: center; /* Center buttons on mobile */
-    gap: 1rem;
-    width: 100%;
-  }
-
-  .direction-button,
-  .edit-button,
-  .website-button {
-    width: 100%;
-    max-width: 300px; /* Limit width on mobile */
-  }
-
-  .school-title {
-    font-size: 1.3rem; /* Reduced from 1.5rem */
-  }
-  
-  .info-section h3 {
+    padding: 0.8rem 1.5rem;
     font-size: 1rem;
+    background: rgba(128, 128, 128, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    color: #424242;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Quicksand', 'Segoe UI', sans-serif;
+    letter-spacing: 0.5px;
+    min-width: 120px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
-}
 
-@media (max-width: 640px) {
-  .school-info-container {
+  .back-button {
+    margin-right: auto;
+  }
+
+  .next-button,
+  .submit-button {
+    margin-left: auto;
+  }
+
+  .back-button:hover,
+  .next-button:hover,
+  .submit-button:hover {
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+  }
+
+  /* Mobile adjustments */
+  @media screen and (max-width: 768px) {
+    .form-buttons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .back-button,
+    .next-button,
+    .submit-button {
+      padding: 0.7rem 1.2rem;
+      font-size: 0.95rem;
+      min-width: 100px;
+    }
+  }
+
+  /* Search styles */
+  .search-container {
+    position: relative;
+    width: 300px;
+  }
+
+  .search-input {
+    width: 100%;
+    height: 36px; /* Fixed height */
+    padding: 0 12px 0 40px; /* Increased left padding to accommodate larger icon */
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 36px;
+    color: #1a202c;
+    background: white;
+    transition: all 0.2s ease;
+    box-sizing: border-box; /* Ensure padding is included in width */
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 1px #3182ce;
+  }
+
+  .search-input::placeholder {
+    color: #a0aec0;
+  }
+
+  /* Update search icon position */
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 42%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    font-size: 28px; /* Increased from 24px */
+    line-height: 36px;
+    width: 28px; /* Increased to match new font size */
+    height: 36px;
+  }
+
+  .search-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Update filter dropdowns */
+  .filter-dropdown button {
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #1a202c;
+    min-width: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .filter-dropdown button::after {
+    content: "▼";
+    font-size: 10px;
+    color: #a0aec0;
+    margin-left: 8px;
+  }
+
+  /* Update filter controls container */
+  .filter-controls {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Higher than school popup modal */
+    display: flex;
+    gap: 20px; /* Increased gap between elements */
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Update dropdown content */
+  .dropdown-content {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-width: 140px;
+    z-index: 1001;
+  }
+
+  .dropdown-content div {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #495057;
+  }
+
+  .dropdown-content div:hover {
+    background: #f8f9fa;
+  }
+
+  /* Add pin highlight animation */
+  @keyframes pinHighlight {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.3);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .highlight-pin {
+    animation: pinHighlight 1s ease-out;
+  }
+
+  /* Update the pin container for the highlight effect */
+  .pin-container.highlight-pin .pin {
+    background: #3498db;
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+  }
+
+  .pin-container.highlight-pin .pin-pulse {
+    background: rgba(52, 152, 219, 0.4);
+  }
+
+  /* Make the large modal wider */
+  .large-modal {
+    max-width: 1200px !important; /* Increased from 1000px */
+    width: 98% !important;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Add this */
+  }
+
+  .school-edit-form {
+    padding: 1rem;
+    padding-top: 3rem; /* Add extra padding at the top */
+  }
+
+  .school-edit-form h2 {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .form-section {
+    margin-bottom: 2.5rem;
     padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
   }
 
-  .school-title {
-    font-size: 1.3rem; /* Reduced from 1.5rem */
+  .form-section h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
   }
 
-  .contact-info {
-    flex-direction: column;
+  .form-group {
+    margin-bottom: 1rem;
   }
 
-  .action-buttons {
-    flex-direction: column;
-  }
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  .large-modal,
-  .school-popup-modal {
-    width: 95% !important;
-    max-width: none;
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #34495e;
   }
 
-  .program-entry,
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+  }
+
+  .program-entry {
+    display: grid;
+    grid-template-columns: 2.5fr 4fr auto; /* Adjusted ratio for wider content */
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    align-items: start;
+  }
+
+  .program-entry textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+    min-height: 100px;
+    resize: vertical;
+    white-space: pre-wrap; /* Preserve line breaks */
+    overflow-wrap: break-word;
+    line-height: 1.5;
+  }
+
+  .form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .save-button,
+  .cancel-button {
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    transition: all 0.3s ease;
+  }
+
+  .save-button {
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    color: white;
+    border: none;
+  }
+
+  .save-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .cancel-button {
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    color: #2c3e50;
+  }
+
+  .cancel-button:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
   .requirement-entry,
   .fee-entry,
   .scholarship-entry {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-
-/* Update search results positioning */
-.search-results {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1002;
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
-  .filter-controls {
-    width: 90%;
-    flex-direction: column;
-    padding: 16px;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 2.5fr 4fr auto; /* Adjusted ratio for wider content */
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    align-items: start;
   }
 
-  .search-container {
+  .requirement-entry textarea,
+  .fee-entry input[type="text"],
+  .scholarship-entry input[type="text"] {
     width: 100%;
-    margin-right: 0;
-    margin-bottom: 8px; /* Added margin for mobile */
+    padding: 0.8rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
   }
-}
 
-/* Add these styles for search results */
-.search-results {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  margin-top: 4px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1002;
-}
+  .requirement-entry textarea {
+    min-height: 120px;
+    resize: both; /* Allow both vertical and horizontal resizing */
+    line-height: 1.6;
+    max-width: none; /* Remove max-width restriction */
+  }
 
-.search-result-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  color: #1a202c;
-}
+  .form-section button[type="button"] {
+    padding: 0.6rem 1.2rem;
+    background: rgba(52, 152, 219, 0.1);
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-radius: 8px;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Quicksand', sans-serif;
+  }
 
-.search-result-item:hover {
-  background: #f7fafc;
-  color: #3498db;
-}
+  .form-section button[type="button"]:hover {
+    background: rgba(52, 152, 219, 0.2);
+    transform: translateY(-1px);
+  }
 
-.search-result-item.no-results {
-  color: #a0aec0;
-  cursor: default;
-  text-align: center;
-}
+  .form-section > button[type="button"] {
+    margin-top: 1rem;
+    width: 100%;
+  }
 
-.search-result-item.no-results:hover {
-  background: none;
-  color: #a0aec0;
-}
+  .school-info-container {
+    padding: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    overflow-y: auto;
+  }
+
+  .school-title {
+    font-size: 1.5rem; /* Reduced from 1.8rem */
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .location-info {
+    font-size: 0.9rem; /* Added font size */
+    color: #666;
+  }
+
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem; /* Reduced from 1rem */
+  }
+
+  .contact-item a {
+    color: #2563eb;
+    text-decoration: none;
+  }
+
+  .website-button {
+    padding: 0.75rem 1.8rem;
+    min-width: 200px;
+    border-radius: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    height: 45px;
+    margin: 0 auto; /* Center the button */
+  }
+
+  .website-button:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  }
+
+  .info-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .info-section:last-child {
+    border-bottom: none;
+  }
+
+  .info-section h3 {
+    font-size: 1.1rem; /* Reduced from 1.2rem */
+    margin-bottom: 0.8rem; /* Slightly reduced margin */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1a1a1a;
+  }
+
+  .icon {
+    font-size: 1rem; /* Reduced from 1.2rem */
+  }
+
+  .programs-list,
+  .requirements-group,
+  .fees-list,
+  .scholarships-list,
+  .campus-info {
+    font-size: 0.9rem;
+    color: #4b5563;
+    text-align: left;
+    width: 100%;
+  }
+
+  .college-item,
+  .fee-item {
+    margin-bottom: 0.5rem;
+    text-align: left;
+    width: 100%;
+  }
+
+  .requirements-group ul {
+    margin-top: 0.5rem;
+    padding-left: 1.5rem;
+    text-align: left;
+    width: 100%;
+  }
+
+  .requirements-group li {
+    margin-bottom: 0.25rem;
+    text-align: left;
+  }
+
+  .campus-item {
+    margin-bottom: 1rem;
+    text-align: left;
+    width: 100%;
+  }
+
+  .campus-item strong {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Action buttons container */
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+  }
+
+  /* Common button styles */
+  .direction-button,
+  .edit-button,
+  .delete-button {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    letter-spacing: 0.5px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0.5rem 0;
+  }
+
+  /* Direction button */
+  .direction-button {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+  }
+
+  .direction-button:hover {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    border: none;
+  }
+
+  /* Edit button */
+  .edit-button {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.1);
+  }
+
+  .edit-button:hover {
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+    border: none;
+  }
+
+  /* Delete button */
+  .delete-button {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.1);
+  }
+
+  .delete-button:hover {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+    border: none;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .action-buttons {
+      gap: 0.8rem;
+    }
+
+    .direction-button,
+    .edit-button,
+    .delete-button {
+      padding: 0.7rem 1.2rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .school-info-container {
+      padding: 1.5rem;
+    }
+
+    .school-title {
+      font-size: 1.3rem; /* Reduced from 1.5rem */
+    }
+
+    .contact-info {
+      flex-direction: column;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .large-modal,
+    .school-popup-modal {
+      width: 95% !important;
+      max-width: none;
+    }
+
+    .program-entry,
+    .requirement-entry,
+    .fee-entry,
+    .scholarship-entry {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  /* Update search results positioning */
+  .search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1002;
+  }
+
+  /* Mobile adjustments */
+  @media screen and (max-width: 768px) {
+    .filter-controls {
+      width: 90%;
+      flex-direction: column;
+      padding: 16px;
+      gap: 12px;
+    }
+
+    .search-container {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 8px; /* Added margin for mobile */
+    }
+  }
+
+  /* Add these styles for search results */
+  .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    margin-top: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1002;
+  }
+
+  .search-result-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #1a202c;
+  }
+
+  .search-result-item:hover {
+    background: #f7fafc;
+    color: #3498db;
+  }
+
+  .search-result-item.no-results {
+    color: #a0aec0;
+    cursor: default;
+    text-align: center;
+  }
+
+  .search-result-item.no-results:hover {
+    background: none;
+    color: #a0aec0;
+  }
+
+  /* Delete button styles */
+  .delete-button {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Quicksand', 'Segoe UI', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .delete-button:hover {
+    background: #e74c3c;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+    border: none;  /* Add this */
+  }
+
+  /* Delete confirmation modal styles */
+  .delete-confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3001;
+  }
+
+  .delete-confirmation-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .delete-confirmation-content h3 {
+    color: #e74c3c;
+    margin-bottom: 1rem;
+  }
+
+  .delete-confirmation-content p {
+    margin-bottom: 1.5rem;
+    color: #666;
+  }
+
+  .confirm-delete-button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+  }
+
+  .confirm-delete-button:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+  }
+
+  .cancel-delete-button {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #dee2e6;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .cancel-delete-button:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+  }
+
+  /* Add styles for the top controls container */
+  .top-controls {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    flex-direction: row; /* Ensure horizontal layout */
+    flex-wrap: nowrap; /* Prevent wrapping */
+  }
+
+  /* Style for the add pin button */
+  .add-pin-button {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Quicksand', 'Segoe UI', sans-serif;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    margin-left: 20px; /* Add space between filter controls and button */
+  }
+
+  .add-pin-button:hover {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+  }
+
+  /* Update mobile styles */
+  @media screen and (max-width: 768px) {
+    .top-controls {
+      width: 90%;
+      flex-direction: column; /* Stack vertically only on mobile */
+      padding: 16px;
+      gap: 12px;
+    }
+
+    .filter-controls {
+      width: 100%;
+    }
+
+    .add-pin-button {
+      width: 100%;
+      margin-left: 0; /* Remove margin on mobile */
+      padding: 0.8rem;
+    }
+  }
+
+    /* Update the school info container styles */
+    .school-info-container {
+      padding: 2rem;
+      max-height: 90vh;
+      overflow-x: hidden; /* Prevent horizontal scrolling */
+      overflow-y: scroll; /* Changed from auto to scroll */
+      position: relative;
+      z-index: 1600; /* Ensure it's above the map */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(52, 152, 219, 0.5) rgba(255, 255, 255, 0.1);
+      width: 100%;
+      box-sizing: border-box; /* Ensure padding is included in width */
+      pointer-events: all !important; /* Ensure scrolling works */
+    }
+
+    /* Style the vertical scrollbar */
+    .school-info-container::-webkit-scrollbar {
+      width: 8px;
+      height: 0;
+    }
+
+    .school-info-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .school-info-container::-webkit-scrollbar-thumb {
+      background: rgba(52, 152, 219, 0.5);
+      border-radius: 4px;
+    }
+
+    .school-info-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(52, 152, 219, 0.7);
+    }
+
+    /* Add styles for the popup container */
+    .leaflet-popup-content-wrapper {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .leaflet-popup-content {
+      margin: 0;
+      width: 100% !important;
+    }
+
+    /* Prevent map interaction when hovering over popup */
+    .leaflet-popup {
+      pointer-events: auto !important;
+    }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-content {
+      pointer-events: auto !important;
+    }
+
+    /* Style the scrollbar */
+    .school-info-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .school-info-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .school-info-container::-webkit-scrollbar-thumb {
+      background: rgba(52, 152, 219, 0.5);
+      border-radius: 4px;
+    }
+
+    .school-info-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(52, 152, 219, 0.7);
+    }
+
+    /* Base map should be interactive */
+    .leaflet-container {
+      pointer-events: auto !important;
+    }
+
+    /* Update close button styles for large modal */
+    .large-modal .close-button {
+      position: fixed; /* Change from absolute to fixed */
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      z-index: 2100; /* Ensure it's above scrolling content */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .large-modal .close-button:hover {
+      background: linear-gradient(45deg, #2c3e50, #3498db);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Update the large modal styles */
+    .large-modal {
+      max-width: 1200px !important;
+      width: 98% !important;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    /* Update close button styles for large modal */
+    .large-modal .close-button {
+      position: sticky; /* Change from fixed to sticky */
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      min-width: 32px; /* Add this to prevent stretching */
+      min-height: 32px; /* Add this to prevent stretching */
+      margin-left: auto; /* Add this */
+      margin-bottom: -52px; /* Add this to offset the padding-top of the form */
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      z-index: 2100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      float: right; /* Add this */
+      padding: 0; /* Add this to prevent padding from affecting size */
+      line-height: 1; /* Add this to center the × symbol */
+    }
+
+    /* Add a container for the close button */
+    .close-button-container {
+      position: sticky;
+      top: 20px;
+      padding-right: 20px;
+      z-index: 2100;
+      width: 100%;
+      pointer-events: none;
+      display: flex; /* Add this */
+      justify-content: flex-end; /* Add this */
+    }
+
+    .close-button-container .close-button {
+      pointer-events: auto; /* This makes the button clickable */
+    }
+
+    /* Update the school edit form styles */
+    .school-edit-form {
+      padding: 1rem;
+      padding-top: 4rem; /* Increase top padding to account for the button */
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Update textarea styles */
+    .form-group textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100px;
+      resize: vertical;
+      white-space: pre-wrap; /* Add this to preserve line breaks */
+      overflow-wrap: break-word; /* Add this to handle long words */
+      line-height: 1.5; /* Add this for better readability */
+    }
+
+    .program-entry textarea,
+    .requirement-entry textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-family: 'Quicksand', sans-serif;
+      min-height: 120px;
+      resize: both; /* Allow both vertical and horizontal resizing */
+      line-height: 1.6;
+      max-width: none; /* Remove max-width restriction */
+    }
+
+    /* Update school popup modal width */
+    .school-popup-modal {
+      /* ... existing styles ... */
+      width: 450px; /* Increased from 350px */
+      /* ... other existing styles ... */
+    }
+
+    /* Update school info container width */
+    .school-info-container {
+      /* ... existing styles ... */
+      max-width: 450px; /* Added max-width */
+      /* ... other existing styles ... */
+    }
+
+    /* Update modal overlay position to match new width */
+    .modal-overlay {
+      /* ... existing styles ... */
+      left: 450px; /* Increased from 350px to match new modal width */
+      /* ... other existing styles ... */
+    }
+
+    /* Add media query for mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .school-popup-modal {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .school-info-container {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .modal-overlay {
+        left: 0;
+      }
+    }
+
+    /* Update list styles */
+    .programs-list,
+    .campus-info ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0.5rem 0;
+    }
+
+    .programs-list .college-item {
+      margin-bottom: 1rem;
+    }
+
+    .college-item .programs-bullet-list {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .college-item .programs-bullet-list li {
+      margin-bottom: 0.25rem;
+    }
+
+    .campus-item ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .campus-item ul li {
+      margin-bottom: 0.25rem;
+    }
+
+    /* Add helper text style */
+    .form-helper-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+
+    /* Update modal content styles for school form */
+    .modal-content.school-form-modal {
+      width: fit-content !important;
+      min-width: 800px;
+      max-width: 90% !important;
+      height: 90vh;
+      padding: 1.5rem; /* Reduced from 2rem */
+      overflow-y: auto;
+    }
+
+    /* Update form layout for better spacing */
+    .school-form-modal .form-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Update grid layout for entries */
+    .school-form-modal .program-entry,
+    .school-form-modal .requirement-entry,
+    .school-form-modal .fee-entry,
+    .school-form-modal .scholarship-entry {
+      display: grid;
+      grid-template-columns: 200px 350px auto;
+      gap: 1rem;
+      width: 100%;
+      align-items: start;
+    }
+
+    /* Style form inputs */
+    .school-form-modal input,
+    .school-form-modal select,
+    .school-form-modal textarea {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Style form buttons */
+    .school-form-modal button[type="button"] {
+      white-space: nowrap;
+      padding: 0.5rem 1rem;
+    }
+
+    /* Update form container */
+    .school-form-modal .school-edit-form {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Mobile responsiveness */
+    @media screen and (max-width: 900px) {
+      .modal-content.school-form-modal {
+        min-width: unset;
+        width: 95% !important;
+      }
+
+      .school-form-modal .program-entry,
+      .school-form-modal .requirement-entry,
+      .school-form-modal .fee-entry,
+      .school-form-modal .scholarship-entry {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+    }
+
+    /* Update heading styles for school form */
+    .school-form-modal .school-edit-form h2 {
+      font-size: 1.8rem;
+      margin: 0; /* Remove all margins */
+      color: #2c3e50;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Update form section spacing to compensate */
+    .school-form-modal .form-section {
+      margin-top: 1.5rem; /* Add top margin to first section instead */
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Update form padding */
+    .school-form-modal .school-edit-form {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 0 2rem 2rem; /* Removed top padding */
+    }
+
+    /* Update modal content padding */
+    .modal-content.school-form-modal {
+      width: fit-content !important;
+      min-width: 800px;
+      max-width: 90% !important;
+      height: 90vh;
+      padding: 1.5rem; /* Reduced from 2rem */
+      overflow-y: auto;
+    }
+
+    /* Update close button styles for school form modal */
+    .school-form-modal .close-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      z-index: 2200; /* Ensure it's above all modal content */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 0;
+      line-height: 1;
+    }
+
+    .school-form-modal .close-button:hover {
+      background: linear-gradient(45deg, #2c3e50, #3498db);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Remove any previous padding that was accounting for the close button */
+    .school-form-modal .school-edit-form {
+      padding-top: 1rem;
+    }
+
+    /* Update form buttons container for school form */
+    .school-form-modal .form-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin: 3rem 0 1.5rem 0; /* Add more space above and below buttons */
+      padding: 1rem 0; /* Add padding for visual breathing room */
+      border-top: 1px solid rgba(0, 0, 0, 0.1); /* Optional: adds a subtle separator */
+      width: 100%;
+    }
+
+    /* Style the form buttons */
+    .school-form-modal .form-buttons button {
+      min-width: 120px;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    /* Update bottom padding of the form container */
+    .school-form-modal .school-edit-form {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 0 2rem 3rem; /* Increased bottom padding */
+    }
+
+    /* Style the form buttons with cancel button distinction */
+    .school-form-modal .form-buttons .cancel-button {
+      background: rgba(231, 76, 60, 0.1); /* Light red background */
+      color: #e74c3c; /* Red text */
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .school-form-modal .form-buttons .cancel-button:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b); /* Red gradient */
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+      border: none;
+    }
+
+    .school-form-modal .form-buttons button[type="submit"] {
+      background: rgba(52, 152, 219, 0.1); /* Light blue background */
+      color: #3498db; /* Blue text */
+      border: 1px solid rgba(52, 152, 219, 0.2);
+    }
+
+    .school-form-modal .form-buttons button[type="submit"]:hover {
+      background: linear-gradient(45deg, #3498db, #2980b9); /* Blue gradient */
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+      border: none;
+    }
+
+    /* Style for the cancel pin button */
+    .add-pin-button.canceling {
+      background: rgba(231, 76, 60, 0.1); /* Light red background */
+      color: #e74c3c; /* Red text */
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .add-pin-button.canceling:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b); /* Red gradient */
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+      border: none;
+    }
+
+    /* Update school popup modal animation */
+    .school-popup-modal {
+      /* ... existing styles ... */
+      transform: translateX(-120%);
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Increased from 0.5s to 0.8s */
+      will-change: transform, opacity;
+    }
+
+    /* Update school info container animation */
+    .school-info-container {
+      /* ... existing styles ... */
+      transform: translateX(-80px); /* Increased from -50px for more visible movement */
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Increased from 0.5s to 0.8s */
+      transition-delay: 0.2s; /* Increased delay for more noticeable stagger effect */
+      will-change: transform, opacity;
+    }
+
+    /* Update active states */
+    .school-popup-modal.active {
+      transform: translateX(0);
+      opacity: 1;
+      z-index: 1599;
+    }
+
+    .school-popup-modal.active .school-info-container {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    /* Update modal overlay animation */
+    .modal-overlay {
+      /* ... existing styles ... */
+      transition: opacity 0.6s ease; /* Increased from 0.4s to 0.6s */
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+    }
+
+    /* Remove any conflicting styles */
+    .school-popup-modal.active {
+      transform: translateX(0);
+      opacity: 1;
+      overscroll-behavior: contain;
+      -webkit-overscroll-behavior: contain;
+      /* Remove any scale transforms */
+    }
+
+    /* Mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .school-popup-modal {
+        width: 100%;
+      }
+      
+      .modal-overlay.active {
+        left: 0;
+      }
+    }
+
+    /* Common styles for both Add and Edit forms */
+    .school-form-modal .school-edit-form,
+    .large-modal .school-edit-form {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 2rem 3rem; /* Added top padding */
+      margin-top: 1rem; /* Added top margin */
+    }
+
+    /* Heading styles for both forms */
+    .school-form-modal .school-edit-form h2,
+    .large-modal .school-edit-form h2 {
+      font-size: 1.8rem;
+      margin: 0 0 2rem 0; /* Added bottom margin */
+      color: #2c3e50;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Form section spacing for both forms */
+    .school-form-modal .form-section,
+    .large-modal .form-section {
+      margin-top: 1.5rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Grid layout for entries in both forms */
+    .school-form-modal .program-entry,
+    .school-form-modal .requirement-entry,
+    .school-form-modal .fee-entry,
+    .school-form-modal .scholarship-entry,
+    .large-modal .program-entry,
+    .large-modal .requirement-entry,
+    .large-modal .fee-entry,
+    .large-modal .scholarship-entry {
+      display: grid;
+      grid-template-columns: 200px 350px auto;
+      gap: 1rem;
+      width: 100%;
+      align-items: start;
+    }
+
+    /* Form buttons container for both forms */
+    .school-form-modal .form-buttons,
+    .large-modal .form-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin: 3rem 0 1.5rem 0;
+      padding: 1rem 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+
+    /* Button styles for both forms */
+    .school-form-modal .form-buttons button,
+    .large-modal .form-buttons button {
+      min-width: 180px; /* Increased from 150px for better uniformity */
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-align: center;
+      font-size: 0.95rem;
+      width: 180px; /* Fixed width for both buttons */
+    }
+
+    /* Cancel button styles for both forms */
+    .school-form-modal .form-buttons .cancel-button,
+    .large-modal .form-buttons .cancel-button {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+      width: 180px; /* Fixed width */
+    }
+
+    /* Cancel button hover animation */
+    .school-form-modal .form-buttons .cancel-button:hover,
+    .large-modal .form-buttons .cancel-button:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+      border: none;
+    }
+
+    /* Submit button styles for both forms */
+    .school-form-modal .form-buttons button[type="submit"],
+    .large-modal .form-buttons button[type="submit"] {
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+      border: 1px solid rgba(52, 152, 219, 0.2);
+      width: 180px; /* Fixed width */
+    }
+
+    /* Submit button hover animation */
+    .school-form-modal .form-buttons button[type="submit"]:hover,
+    .large-modal .form-buttons button[type="submit"]:hover {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+      border: none;
+    }
+
+    /* Style for the cancel pin button */
+    .add-pin-button.canceling {
+      background: rgba(231, 76, 60, 0.1); /* Light red background */
+      color: #e74c3c; /* Red text */
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .add-pin-button.canceling:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b); /* Red gradient */
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+      border: none;
+    }
+
+    /* Update school popup modal animation */
+    .school-popup-modal {
+      /* ... existing styles ... */
+      transform: translateX(-120%);
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Increased from 0.5s to 0.8s */
+      will-change: transform, opacity;
+    }
+
+    /* Update school info container animation */
+    .school-info-container {
+      /* ... existing styles ... */
+      transform: translateX(-80px); /* Increased from -50px for more visible movement */
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Increased from 0.5s to 0.8s */
+      transition-delay: 0.2s; /* Increased delay for more noticeable stagger effect */
+      will-change: transform, opacity;
+    }
+
+    /* Update active states */
+    .school-popup-modal.active {
+      transform: translateX(0);
+      opacity: 1;
+      z-index: 1200;
+    }
+
+    .school-popup-modal.active .school-info-container {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    /* Update modal overlay animation */
+    .modal-overlay {
+      /* ... existing styles ... */
+      transition: opacity 0.6s ease; /* Increased from 0.4s to 0.6s */
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+    }
+
+    /* Remove any conflicting styles */
+    .school-popup-modal.active {
+      transform: translateX(0);
+      opacity: 1;
+      overscroll-behavior: contain;
+      -webkit-overscroll-behavior: contain;
+      /* Remove any scale transforms */
+    }
+
+    /* Mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .school-popup-modal {
+        width: 100%;
+      }
+      
+      .modal-overlay.active {
+        left: 0;
+      }
+    }
+
+    /* Common styles for both Add and Edit forms */
+    .school-form-modal .school-edit-form,
+    .large-modal .school-edit-form {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 2rem 3rem; /* Added top padding */
+      margin-top: 1rem; /* Added top margin */
+    }
+
+    /* Heading styles for both forms */
+    .school-form-modal .school-edit-form h2,
+    .large-modal .school-edit-form h2 {
+      font-size: 1.8rem;
+      margin: 0 0 2rem 0; /* Added bottom margin */
+      color: #2c3e50;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Form section spacing for both forms */
+    .school-form-modal .form-section,
+    .large-modal .form-section {
+      margin-top: 1.5rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Grid layout for entries in both forms */
+    .school-form-modal .program-entry,
+    .school-form-modal .requirement-entry,
+    .school-form-modal .fee-entry,
+    .school-form-modal .scholarship-entry,
+    .large-modal .program-entry,
+    .large-modal .requirement-entry,
+    .large-modal .fee-entry,
+    .large-modal .scholarship-entry {
+      display: grid;
+      grid-template-columns: 200px 350px auto;
+      gap: 1rem;
+      width: 100%;
+      align-items: start;
+    }
+
+    /* Form buttons container for both forms */
+    .school-form-modal .form-buttons,
+    .large-modal .form-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin: 3rem 0 1.5rem 0;
+      padding: 1rem 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+
+    /* Button styles for both forms */
+    .school-form-modal .form-buttons button,
+    .large-modal .form-buttons button {
+      min-width: 180px; /* Increased from 150px for better uniformity */
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-align: center;
+      font-size: 0.95rem;
+      width: 180px; /* Fixed width for both buttons */
+    }
+
+    /* Cancel button styles for both forms */
+    .school-form-modal .form-buttons .cancel-button,
+    .large-modal .form-buttons .cancel-button {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+      width: 180px; /* Fixed width */
+    }
+
+    /* Cancel button hover animation */
+    .school-form-modal .form-buttons .cancel-button:hover,
+    .large-modal .form-buttons .cancel-button:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+      border: none;
+    }
+
+    /* Submit button styles for both forms */
+    .school-form-modal .form-buttons button[type="submit"],
+    .large-modal .form-buttons button[type="submit"] {
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+      border: 1px solid rgba(52, 152, 219, 0.2);
+      width: 180px; /* Fixed width */
+    }
+
+    /* Update form label styles for both forms */
+    .school-form-modal .form-group label,
+    .large-modal .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #34495e;
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    /* Update form group layout */
+    .school-form-modal .form-group,
+    .large-modal .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+      width: 100%;
+    }
+
+    /* Update section heading styles */
+    .school-form-modal .form-section h3,
+    .large-modal .form-section h3 {
+      margin-bottom: 1.5rem;
+      color: #2c3e50;
+      text-align: center; /* Center the section headers */
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    /* Update helper text alignment */
+    .form-helper-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.25rem;
+      font-style: italic;
+      text-align: left; /* Keep helper text left-aligned */
+    }
+
+    /* Update form group spacing */
+    .school-form-modal .form-group,
+    .large-modal .form-group {
+      margin-bottom: 2rem; /* Increased from 1.5rem */
+      text-align: left;
+      width: 100%;
+    }
+
+    /* Update input and textarea spacing */
+    .school-form-modal .form-group input,
+    .school-form-modal .form-group select,
+    .school-form-modal .form-group textarea,
+    .large-modal .form-group input,
+    .large-modal .form-group select,
+    .large-modal .form-group textarea {
+      padding: 0.8rem 1rem;
+      margin-top: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Update entry spacing */
+    .school-form-modal .program-entry,
+    .school-form-modal .requirement-entry,
+    .school-form-modal .fee-entry,
+    .school-form-modal .scholarship-entry,
+    .large-modal .program-entry,
+    .large-modal .requirement-entry,
+    .large-modal .fee-entry,
+    .large-modal .scholarship-entry {
+      display: grid;
+      grid-template-columns: 200px 350px auto;
+      gap: 1.5rem; /* Increased from 1rem */
+      width: 100%;
+      align-items: start;
+      margin-bottom: 2rem; /* Added margin bottom */
+      padding: 1rem; /* Added padding */
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+    }
+
+    /* Update section spacing */
+    .school-form-modal .form-section,
+    .large-modal .form-section {
+      margin-top: 2rem; /* Increased from 1.5rem */
+      margin-bottom: 2.5rem; /* Increased from 2rem */
+      padding: 2rem; /* Increased from 1.5rem */
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Update section heading spacing */
+    .school-form-modal .form-section h3,
+    .large-modal .form-section h3 {
+      margin-bottom: 2rem; /* Increased from 1.5rem */
+      color: #2c3e50;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    /* Update remove button spacing */
+    .school-form-modal button[type="button"],
+    .large-modal button[type="button"] {
+      white-space: nowrap;
+      padding: 0.7rem 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Style form inputs and textareas for both forms */
+    .school-form-modal .form-group input,
+    .school-form-modal .form-group select,
+    .school-form-modal .form-group textarea,
+    .school-form-modal .program-entry input,
+    .school-form-modal .program-entry textarea,
+    .large-modal .form-group input,
+    .large-modal .form-group select,
+    .large-modal .form-group textarea,
+    .large-modal .program-entry input,
+    .large-modal .program-entry textarea {
+      width: 100%;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.95rem;
+      color: #2c3e50;
+      background: white;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    /* Focus states */
+    .school-form-modal .form-group input:focus,
+    .school-form-modal .form-group select:focus,
+    .school-form-modal .form-group textarea:focus,
+    .school-form-modal .program-entry input:focus,
+    .school-form-modal .program-entry textarea:focus,
+    .large-modal .form-group input:focus,
+    .large-modal .form-group select:focus,
+    .large-modal .form-group textarea:focus,
+    .large-modal .program-entry input:focus,
+    .large-modal .program-entry textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    /* Textarea specific styles */
+    .school-form-modal textarea,
+    .large-modal textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      margin: 8px 0 16px 0;
+    }
+
+    /* Placeholder styles */
+    .school-form-modal input::placeholder,
+    .school-form-modal textarea::placeholder,
+    .large-modal input::placeholder,
+    .large-modal textarea::placeholder {
+      color: #95a5a6;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    /* Select styles */
+    .school-form-modal select,
+    .large-modal select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1em;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    /* Program entry container styles */
+    .program-entry {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      display: flex; /* Changed from grid to flex */
+      flex-direction: column; /* Stack items vertically */
+      gap: 1rem;
+      width: 100%;
+      position: relative; /* For absolute positioning of remove button */
+    }
+
+    .program-entry:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px);
+    }
+
+    /* Program entry input styles */
+    .program-entry input,
+    .program-entry textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.95rem;
+      color: #2c3e50;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    /* Remove button styles */
+    .program-entry button[type="button"] {
+      position: absolute;
+      top: 50%; /* Change from fixed top value */
+      transform: translateY(-50%); /* Center vertically */
+      right: 1.5rem;
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .program-entry button[type="button"]:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      color: white;
+      border: none;
+      transform: translateY(-50%) translateX(-2px); /* Keep vertical centering while adding hover movement */
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+    }
+
+    /* Common entry container styles */
+    .program-entry,
+    .requirement-entry,
+    .fee-entry,
+    .scholarship-entry {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      position: relative;
+      padding-right: 160px; /* Make space for the remove button */
+    }
+
+    /* Input and textarea styles */
+    .program-entry input,
+    .program-entry textarea,
+    .requirement-entry input,
+    .requirement-entry textarea,
+    .fee-entry input,
+    .scholarship-entry input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.95rem;
+      color: #2c3e50;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    /* Textarea specific styles */
+    .program-entry textarea,
+    .requirement-entry textarea {
+      min-height: 120px;
+      resize: both; /* Allow both vertical and horizontal resizing */
+      line-height: 1.6;
+      max-width: none; /* Remove max-width restriction */
+      width: 648px !important; /* Set fixed width */
+      box-sizing: border-box;
+    }
+
+    /* Remove button styles */
+    .program-entry button[type="button"],
+    .requirement-entry button[type="button"],
+    .fee-entry button[type="button"],
+    .scholarship-entry button[type="button"] {
+      position: absolute;
+      top: 40%;
+      transform: translateY(-50%);
+      right: 1.5rem;
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    /* Hover effect for remove buttons */
+    .program-entry button[type="button"]:hover,
+    .requirement-entry button[type="button"]:hover,
+    .fee-entry button[type="button"]:hover,
+    .scholarship-entry button[type="button"]:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      color: white;
+      border: none;
+      transform: translateY(-50%) translateX(-2px); /* Keep vertical centering while adding hover movement */
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+    }
+
+    /* Specific adjustments for fee entries */
+    .fee-entry {
+      position: relative;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+      padding-right: 160px;
+    }
+
+    /* Update placeholder text */
+    .program-entry textarea::placeholder,
+    .requirement-entry textarea::placeholder {
+      content: "Enter items on new lines";
+    }
+
+    /* Remove button container styles */
+    .remove-button-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Confirmation popup styles */
+    .remove-confirm-popup {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      right: 0;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      width: max-content;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+
+    .remove-confirm-popup.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Popup message */
+    .remove-confirm-popup p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #2c3e50;
+      white-space: nowrap;
+    }
+
+    /* Popup buttons container */
+    .remove-confirm-popup .buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* Popup buttons */
+    .remove-confirm-popup button {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .remove-confirm-popup .confirm {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .remove-confirm-popup .confirm:hover {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      color: white;
+      border: none;
+    }
+
+    .remove-confirm-popup .cancel {
+      background: rgba(0, 0, 0, 0.05);
+      color: #666;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .remove-confirm-popup .cancel:hover {
+      background: #f0f0f0;
+    }
+
+  /* History control styles - specifically for edit form */
+  .large-modal .history-controls {
+    position: sticky;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 2300;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    align-self: flex-start;
+    width: fit-content;
+  }
+
+  /* Update form container to enable sticky positioning */
+  .school-edit-form {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 2rem 3rem;
+    margin-top: 1rem;
+    overflow-y: auto;
+  }
+
+  /* Update form section to maintain proper spacing */
+  .large-modal .form-section {
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative; /* Add this */
+  }
+
+  /* Update form buttons to stay at bottom */
+  .large-modal .form-buttons {
+    position: relative; /* Changed from sticky to relative */
+    bottom: auto; /* Remove sticky positioning */
+    padding: 1rem 0;
+    margin-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 2200;
+    background: transparent;
+  }
+
+  /* Remove the gradient effect since buttons are not sticky anymore */
+  .large-modal .form-buttons::before {
+    display: none; /* Remove the gradient background */
+  }
+
+  /* Update form container spacing */
+  .school-edit-form {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 2rem 3rem;
+    margin-top: 1rem;
+    overflow-y: auto;
+  }
+
+  /* Update last form section spacing */
+  .large-modal .form-section:last-of-type {
+    margin-bottom: 1rem; /* Reduce space between last section and buttons */
+  }
+
+  @keyframes highlightPulse {
+    /* ... rest of your animations ... */
+  }
+
+  /* Add these styles for the forgot password functionality */
+  .forgot-password-button {
+    background: none !important;
+    border: none !important;
+    color: #3498db !important;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .forgot-password-button:hover {
+    color: #2980b9 !important;
+    background: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .reset-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .reset-buttons .back-button {
+    background: rgba(0, 0, 0, 0.1) !important;
+    color: #666 !important;
+  }
+
+  .reset-success {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .reset-success p {
+    margin: 0.5rem 0;
+    color: #2ecc71;
+    background: rgba(46, 204, 113, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .reset-success button {
+    margin-top: 1.5rem;
+  }
+
+  /* Loading spinner styles */
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(52, 152, 219, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s linear infinite;
+  }
+
+  .button-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+    display: inline-block;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Add disabled button styles */
+  button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* Add loading overlay styles */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  /* Update direction button styles */
+  .direction-button {
+    /* ... existing styles ... */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .direction-button:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+  }
+
+  .direction-button .button-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(52, 152, 219, 0.1);
+    border-top-color: #3498db;
+  }
+
+  .direction-button:disabled:hover {
+    transform: none;
+    box-shadow: none;
+  }
 

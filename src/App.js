@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
@@ -15,6 +15,7 @@ import SchoolForm from './components/SchoolForm';
 import { onAuthStateChanged } from 'firebase/auth';
 import FilterControls from './components/FilterControls';
 import SchoolEditForm from './components/SchoolEditForm';
+import LoadingSpinner from './components/LoadingSpinner';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -147,7 +148,8 @@ function MapContent({
   currentMapView,
   mapLayers,
   isAdmin,
-  setMapRef
+  setMapRef,
+  setShowDeleteConfirm
 }) {
   const map = useMap();
   const [routingControl, setRoutingControl] = useState(null);
@@ -326,59 +328,85 @@ function MapContent({
               <div className="programs-list">
                 {selectedSchool.academicPrograms?.map((college, index) => (
                   <div key={index} className="college-item">
-                    <strong>{college.name}:</strong> {college.programs.join(', ')}
+                    <strong>{college.name}:</strong>
+                    <ul className="programs-bullet-list">
+                      {college.programs.map((program, progIndex) => (
+                        <li key={progIndex}>{program}</li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="info-section">
-              <h3><span className="icon">📝</span> Admission Requirements</h3>
-              {Object.entries(selectedSchool.admissionRequirements || {}).map(([type, requirements], index) => (
-                <div key={index} className="requirements-group">
-                  <strong>For {type}:</strong>
-                  <ul>
-                    {requirements.map((req, reqIndex) => (
-                      <li key={reqIndex}>{req}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            <div className="info-section">
-              <h3><span className="icon">💰</span> Tuition Fees</h3>
-              <div className="fees-list">
-                {Object.entries(selectedSchool.tuitionFees || {}).map(([fee, amount], index) => (
-                  <div key={index} className="fee-item">
-                    <span>{fee}:</span> <strong>₱{amount}</strong>
+            {Object.keys(selectedSchool.admissionRequirements || {}).length > 0 && (
+              <div className="info-section">
+                <h3><span className="icon">📝</span> Admission Requirements</h3>
+                {Object.entries(selectedSchool.admissionRequirements || {}).map(([type, requirements], index) => (
+                  <div key={index} className="requirements-group">
+                    <strong>For {type}:</strong>
+                    <ul>
+                      {requirements.map((req, reqIndex) => (
+                        <li key={reqIndex}>{req}</li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
-            </div>
+            )}
 
-            <div className="info-section">
-              <h3><span className="icon">🎯</span> Scholarships Available</h3>
-              <ul className="scholarships-list">
-                {selectedSchool.scholarships?.map((scholarship, index) => (
-                  <li key={index}>{scholarship}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="info-section">
-              <h3><span className="icon">🏫</span> Campus Life</h3>
-              <div className="campus-info">
-                <div className="campus-item">
-                  <strong>Student Organizations:</strong>
-                  <p>{selectedSchool.campusLife?.organizations?.join(', ')}</p>
-                </div>
-                <div className="campus-item">
-                  <strong>Facilities:</strong>
-                  <p>{selectedSchool.campusLife?.facilities?.join(', ')}</p>
+            {Object.keys(selectedSchool.tuitionFees || {}).length > 0 && (
+              <div className="info-section">
+                <h3><span className="icon">💰</span> Tuition Fees</h3>
+                <div className="fees-list">
+                  {Object.entries(selectedSchool.tuitionFees || {}).map(([fee, amount], index) => (
+                    <div key={index} className="fee-item">
+                      <span>{fee}:</span> <strong>₱{amount}</strong>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
+
+            {selectedSchool.scholarships?.length > 0 && (
+              <div className="info-section">
+                <h3><span className="icon">🎯</span> Scholarships Available</h3>
+                <ul className="scholarships-list">
+                  {selectedSchool.scholarships?.map((scholarship, index) => (
+                    <li key={index}>{scholarship}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {(selectedSchool.campusLife?.organizations?.length > 0 || 
+              selectedSchool.campusLife?.facilities?.length > 0) && (
+              <div className="info-section">
+                <h3><span className="icon">🏫</span> Campus Life</h3>
+                <div className="campus-info">
+                  {selectedSchool.campusLife?.organizations?.length > 0 && (
+                    <div className="campus-item">
+                      <strong>Student Organizations:</strong>
+                      <ul>
+                        {selectedSchool.campusLife?.organizations?.map((org, index) => (
+                          <li key={index}>{org}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {selectedSchool.campusLife?.facilities?.length > 0 && (
+                    <div className="campus-item">
+                      <strong>Facilities:</strong>
+                      <ul>
+                        {selectedSchool.campusLife?.facilities?.map((facility, index) => (
+                          <li key={index}>{facility}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="action-buttons">
               {userLocation && (
@@ -390,12 +418,20 @@ function MapContent({
                 </button>
               )}
               {user && isAdmin && (
-                <button 
-                  onClick={() => handleEditSchool(selectedSchool)}
-                  className="edit-button"
-                >
-                  Edit Information
-                </button>
+                <>
+                  <button 
+                    onClick={() => handleEditSchool(selectedSchool)}
+                    className="edit-button"
+                  >
+                    Edit Information
+                  </button>
+                  <button 
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="delete-button"
+                  >
+                    Delete School
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -479,6 +515,7 @@ function Map({ mapRef, ...props }) {
           mapLayers={mapLayers}
           isAdmin={props.isAdmin}
           setMapRef={(map) => mapRef.current = map}
+          setShowDeleteConfirm={props.setShowDeleteConfirm}
         />
       </MapContainer>
     </>
@@ -513,17 +550,26 @@ function App() {
   const [userName, setUserName] = useState('');
   const [showEditForm, setShowEditForm] = useState(false);
   const [schoolToEdit, setSchoolToEdit] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch schools from Firebase
     const fetchSchools = async () => {
-      const schoolsCollection = collection(db, 'schools');
-      const schoolSnapshot = await getDocs(schoolsCollection);
-      const schoolList = schoolSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setSchools(schoolList);
+      setIsLoading(true);
+      try {
+        const querySnapshot = await getDocs(collection(db, 'schools'));
+        const schoolsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setSchools(schoolsData);
+      } catch (error) {
+        console.error("Error fetching schools:", error);
+        showNotification('Error loading schools. Please try again.', 'error');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchSchools();
@@ -633,6 +679,32 @@ function App() {
     }
   };
 
+  const handleDeleteSchool = async (schoolId) => {
+    try {
+      // Delete the school document from Firestore
+      await deleteDoc(doc(db, 'schools', schoolId));
+      
+      // Update local state
+      setSchools(schools.filter(school => school.id !== schoolId));
+      
+      // Close the edit form and selected school
+      setShowEditForm(false);
+      setSelectedSchool(null);
+      setSchoolToEdit(null);
+      
+      // Close the delete confirmation modal
+      setShowDeleteConfirm(false);
+      
+      // Show success notification
+      showNotification('School deleted successfully!');
+    } catch (error) {
+      console.error("Error deleting school: ", error);
+      showNotification('Failed to delete school', 'error');
+      // Close the confirmation modal even if there's an error
+      setShowDeleteConfirm(false);
+    }
+  };
+
   // Get filtered schools based on current filters
   const filteredSchools = schools.filter(school => {
     // Type filter
@@ -652,9 +724,9 @@ function App() {
     return true;
   });
 
-  const showNotification = (message, type = 'success') => {
+  const showNotification = (message, type = 'success', duration = 3000) => {
     setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000); // Hide after 3 seconds
+    setTimeout(() => setNotification(null), duration);
   };
 
   const handleCloseLogin = () => {
@@ -730,11 +802,23 @@ function App() {
     setShowLogoutConfirm(true);
   };
 
-  const confirmLogout = () => {
-    setUser(null);
-    setUserType(null);
-    setShowLogoutConfirm(false);
-    showNotification('Successfully logged out!');
+  const confirmLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      setUser(null);
+      setUserType(null);
+      setShowLogoutConfirm(false);
+      showNotification('Successfully logged out!', 'success');
+      
+      // Add delay before refresh to show notification
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500); // 1.5 second delay
+    } catch (error) {
+      console.error("Logout error:", error);
+      showNotification('Error logging out. Please try again.', 'error');
+    }
   };
 
   // Add this function to check if the logged-in user is an admin
@@ -816,6 +900,18 @@ function App() {
     }
   };
 
+  // Add this function near your other handlers
+  const handleAddPinClick = () => {
+    setIsAddingPin(!isAddingPin);
+    if (!isAddingPin) {
+      showNotification(
+        "Click on the exact location of your school. Please be as precise as possible to ensure accurate mapping.", 
+        "info",
+        5000  // Show for 5 seconds
+      );
+    }
+  };
+
   return (
     <div className="App">
       <div className="header">
@@ -826,11 +922,6 @@ function App() {
         {user ? (
           <div className="user-controls">
             <h2>Welcome, {userName}</h2>
-            {isAdmin && (
-              <button onClick={() => setIsAddingPin(!isAddingPin)}>
-                {isAddingPin ? 'Cancel Adding Pin' : 'Add School Pin'}
-              </button>
-            )}
             <button onClick={handleLogout}>Logout</button>
           </div>
         ) : (
@@ -841,13 +932,37 @@ function App() {
         )}
       </div>
 
-      {userType === 'student' && (
-        <FilterControls 
-          filters={filters} 
-          setFilters={setFilters}
-          schools={schools}
-          onSchoolSelect={handleSchoolSearch}
-        />
+      <FilterControls 
+        filters={filters} 
+        setFilters={setFilters}
+        schools={schools}
+        onSchoolSelect={handleSchoolSearch}
+        isAdmin={isAdmin}
+        onAddPin={handleAddPinClick}  // Changed from the inline function
+        isAddingPin={isAddingPin}
+      />
+
+      {showDeleteConfirm && (
+        <div className="delete-confirmation-modal">
+          <div className="delete-confirmation-content">
+            <h3>Delete School</h3>
+            <p>Are you sure you want to delete this school? This action cannot be undone.</p>
+            <div className="confirmation-buttons">
+              <button 
+                onClick={() => handleDeleteSchool(selectedSchool.id)}
+                className="confirm-delete-button"
+              >
+                Yes, Delete
+              </button>
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="cancel-delete-button"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Add modal states and components */}
@@ -910,7 +1025,7 @@ function App() {
 
       {showSchoolForm && (
         <div className="modal-backdrop" onClick={() => setShowSchoolForm(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-content school-form-modal" onClick={e => e.stopPropagation()}>
             <button className="close-button" onClick={() => setShowSchoolForm(false)}>×</button>
             <SchoolForm
               onSubmit={handleSchoolFormSubmit}
@@ -919,6 +1034,7 @@ function App() {
                 setNewPinLocation(null);
                 setIsAddingPin(false);
               }}
+              showNotification={showNotification}
             />
           </div>
         </div>
@@ -932,6 +1048,8 @@ function App() {
               school={schoolToEdit}
               onSubmit={handleEditSubmit}
               onCancel={() => setShowEditForm(false)}
+              onDelete={handleDeleteSchool}
+              showNotification={showNotification}
             />
           </div>
         </div>
@@ -950,6 +1068,7 @@ function App() {
         compassHeading={compassHeading}
         setUserLocation={setUserLocation}
         isAdmin={isAdmin}
+        setShowDeleteConfirm={setShowDeleteConfirm}
       />
 
       {notification && (

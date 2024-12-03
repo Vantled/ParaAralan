@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function FilterControls({ filters, setFilters, schools, onSchoolSelect }) {
+function FilterControls({ filters, setFilters, schools, onSchoolSelect, isAdmin, onAddPin, isAddingPin }) {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showScholarshipDropdown, setShowScholarshipDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,9 +17,9 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect }) {
     setShowScholarshipDropdown(false);
   };
 
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-    setShowSearchResults(term.length > 0);
+  const handleSearch = (searchTerm) => {
+    setSearchTerm(searchTerm);
+    setShowSearchResults(searchTerm.length > 0);
   };
 
   const handleSchoolSelect = (school) => {
@@ -87,13 +87,11 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect }) {
         <button onClick={() => setShowTypeDropdown(!showTypeDropdown)}>
           {filters.type || 'School Type'}
         </button>
-        {showTypeDropdown && (
-          <div className="dropdown-content">
-            <div onClick={() => handleTypeSelect('')}>All Types</div>
-            <div onClick={() => handleTypeSelect('university')}>University</div>
-            <div onClick={() => handleTypeSelect('college')}>College</div>
-          </div>
-        )}
+        <div className={`dropdown-content ${showTypeDropdown ? 'show' : ''}`}>
+          <div style={{'--item-index': 0}} onClick={() => handleTypeSelect('')}>All Types</div>
+          <div style={{'--item-index': 1}} onClick={() => handleTypeSelect('university')}>University</div>
+          <div style={{'--item-index': 2}} onClick={() => handleTypeSelect('college')}>College</div>
+        </div>
       </div>
 
       <div className="filter-dropdown">
@@ -104,14 +102,21 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect }) {
             ? 'Has Scholarship'
             : 'No Scholarship'}
         </button>
-        {showScholarshipDropdown && (
-          <div className="dropdown-content">
-            <div onClick={() => handleScholarshipSelect(null)}>All</div>
-            <div onClick={() => handleScholarshipSelect(true)}>Has Scholarship</div>
-            <div onClick={() => handleScholarshipSelect(false)}>No Scholarship</div>
-          </div>
-        )}
+        <div className={`dropdown-content ${showScholarshipDropdown ? 'show' : ''}`}>
+          <div style={{'--item-index': 0}} onClick={() => handleScholarshipSelect(null)}>All</div>
+          <div style={{'--item-index': 1}} onClick={() => handleScholarshipSelect(true)}>Has Scholarship</div>
+          <div style={{'--item-index': 2}} onClick={() => handleScholarshipSelect(false)}>No Scholarship</div>
+        </div>
       </div>
+
+      {isAdmin && (
+        <button 
+          className={`add-pin-button ${isAddingPin ? 'canceling' : ''}`}
+          onClick={onAddPin}
+        >
+          {isAddingPin ? 'Cancel Adding Pin' : 'Add School Pin'}
+        </button>
+      )}
     </div>
   );
 }
