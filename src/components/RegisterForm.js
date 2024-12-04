@@ -347,35 +347,30 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification }) {
 
   return (
     <div className="register-form">
-      <h2>Register New Account</h2>
-      <div className="step-indicator">
-        Step {step} of 4
-      </div>
-      <form onSubmit={step === 4 ? handleSubmit : (e) => e.preventDefault()}>
+      <h2>Register</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
         {renderStep()}
-        {error && <p className="error">{error}</p>}
-        <div className="form-buttons">
-          {step > 1 && (
-            <button type="button" onClick={handleBack} className="back-button">
-              Back
-            </button>
-          )}
-          {step < 4 ? (
-            <button type="button" onClick={handleNext} className="next-button">
-              Next
-            </button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <span className="button-spinner"></span>
+              Registering...
+            </>
           ) : (
-            <button type="submit" className="submit-button" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <span className="button-spinner"></span>
-                  Registering...
-                </>
-              ) : (
-                'Complete Registration'
-              )}
-            </button>
+            'Register'
           )}
+        </button>
+        
+        <div className="form-links">
+          <button 
+            type="button"
+            onClick={onClose}
+            className="create-account-button"
+            disabled={isLoading}
+          >
+            Already have an account? <span className="link-text">Login here</span>
+          </button>
         </div>
       </form>
     </div>

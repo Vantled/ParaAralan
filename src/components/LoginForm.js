@@ -152,14 +152,24 @@ function LoginForm({ setUser, setUserType, onClose, showNotification }) {
             'Login'
           )}
         </button>
-        <button 
-          type="button"
-          onClick={() => setShowForgotPassword(true)}
-          className="forgot-password-button"
-          disabled={isLoading}
-        >
-          Forgot Password?
-        </button>
+        <div className="form-links">
+          <button 
+            type="button"
+            onClick={() => setShowForgotPassword(true)}
+            className="forgot-password-button"
+            disabled={isLoading}
+          >
+            Forgot Password?
+          </button>
+          <button 
+            type="button"
+            onClick={onClose}
+            className="create-account-button"
+            disabled={isLoading}
+          >
+            Don't have an account? <span className="link-text">Create one</span>
+          </button>
+        </div>
       </form>
     </div>
   );

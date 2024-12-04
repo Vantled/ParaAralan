@@ -473,23 +473,113 @@ body {
   font-family: 'Quicksand', sans-serif;
 }
 
+/* Update filter controls base styles */
 .filter-controls {
-  position: fixed;
+  position: absolute;
   top: 80px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
   display: flex;
-  gap: 20px; /* Increased gap between elements */
+  gap: 20px;
   align-items: center;
   padding: 12px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: auto;
+  min-width: 300px;
+}
+
+/* Update styles for when school popup is active - slide to right */
+.App:has(.school-popup-modal.active) .filter-controls {
+  left: auto;
+  right: 20px;
+  transform: translateX(0);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .filter-controls {
+    width: 90%;
+    padding: 10px;
+    min-width: auto;
+  }
+
+  .App:has(.school-popup-modal.active) .filter-controls {
+    right: 10px;
+    top: 140px;
+    transform: translateX(0);
+  }
+}
+
+/* Tablet adjustments */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .App:has(.school-popup-modal.active) .filter-controls {
+    right: 30px;
+    transform: translateX(0);
+  }
+}
+
+/* Add styles for when school popup is active */
+.App:has(.school-popup-modal.active) .filter-controls .search-container {
+  width: 100%;
+}
+
+.App:has(.school-popup-modal.active) .filter-controls .filter-dropdown {
+  width: 100%;
+}
+
+.App:has(.school-popup-modal.active) .filter-controls .add-pin-button {
+  width: 100%;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .App:has(.school-popup-modal.active) .filter-controls {
+    top: 140px;
+    right: 10px;
+    width: 200px;
+  }
+
+  .filter-controls {
+    width: 90%;
+    padding: 10px;
+    min-width: auto;
+  }
+}
+
+/* Tablet adjustments */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .App:has(.school-popup-modal.active) .filter-controls {
+    right: 30px;
+    width: 220px;
+  }
+}
+
+/* Update search results positioning when popup is active */
+.App:has(.school-popup-modal.active) .filter-controls .search-results {
+  width: 100%;
+  left: 0;
+}
+
+/* Add transition for smooth animation */
+.filter-controls,
+.filter-controls * {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure dropdown menus appear correctly when filter controls are repositioned */
+.App:has(.school-popup-modal.active) .filter-controls .dropdown-content {
+  width: 100%;
+  left: 0;
 }
 
 .filter-dropdown {
   position: relative;
+  z-index: 1001; /* Ensure dropdowns appear above other elements */
 }
 
 .filter-dropdown button {
@@ -516,18 +606,19 @@ body {
 /* Dropdown animation styles */
 .dropdown-content {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 4px);
   left: 0;
   background: white;
-  border-radius: 6px;
+  border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  min-width: 120px;
-  z-index: 1001;
+  min-width: 100%;
+  z-index: 1002;
   border: 1px solid #e9ecef;
   
   /* Animation properties */
   transform-origin: top;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-10px) scaleY(0.95);
   transition: all 0.2s cubic-bezier(0.5, 0, 0, 1.25);
   pointer-events: none;
@@ -535,6 +626,7 @@ body {
 
 .dropdown-content.show {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0) scaleY(1);
   pointer-events: auto;
 }
@@ -802,6 +894,772 @@ body {
 
 .modal-content.closing {
   animation: modalOut 0.3s ease-out forwards;
+}
+
+/* Add location button styles */
+.location-button {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(44, 62, 80, 0.1);
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #424242;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.location-button:hover:not(:disabled) {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.location-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.location-button.loading {
+  cursor: wait;
+}
+
+.location-button .button-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(52, 152, 219, 0.1);
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 4px;
+}
+
+.location-button.error {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.location-button.error:hover {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+/* Location error tooltip */
+.location-error-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #e74c3c;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .location-button {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .location-error-tooltip {
+    width: 200px;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+.button-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(52, 152, 219, 0.1);
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .location-button {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .location-error-tooltip {
+    width: 200px;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+.user-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-controls button {
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  color: #424242;
+  font-weight: 500;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.user-controls button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.user-controls h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+}
+
+.map-container {
+  width: 100%;
+  height: calc(100vh - 70px);
+  margin-top: 70px;
+}
+
+.static-map {
+  width: 100%;
+  height: 100%;
+  background-color: #e5e7eb;
+  position: relative;
+  cursor: pointer;
+}
+
+.map-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  font-size: 24px;
+  transition: transform 0.2s;
+}
+
+.map-marker:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.floating-info-window {
+  position: fixed;
+  right: 20px;
+  top: 90px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+  z-index: 1000;
+}
+
+.close-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-info:hover {
+  color: #333;
+}
+
+.login-form input::placeholder,
+.register-form input::placeholder {
+  color: #95a5a6;
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Add these styles for Leaflet */
+.leaflet-container {
+  width: 100vw;
+  height: calc(100vh - 70px);
+  margin-top: 70px;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: auto !important;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 15px 15px 15px 15px;
+  text-align: center;
+  width: 300px !important;
+  position: relative;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-popup-content h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Update filter controls base styles */
+.filter-controls {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: auto;
+  min-width: 300px;
+}
+
+/* Update styles for when school popup is active - slide to right */
+.App:has(.school-popup-modal.active) .filter-controls {
+  left: auto;
+  right: 20px;
+  transform: translateX(0);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .filter-controls {
+    width: 90%;
+    padding: 10px;
+    min-width: auto;
+  }
+
+  .App:has(.school-popup-modal.active) .filter-controls {
+    right: 10px;
+    top: 140px;
+    transform: translateX(0);
+  }
+}
+
+/* Tablet adjustments */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .App:has(.school-popup-modal.active) .filter-controls {
+    right: 30px;
+    transform: translateX(0);
+  }
+}
+
+/* Add styles for when school popup is active */
+.App:has(.school-popup-modal.active) .filter-controls .search-container {
+  width: 100%;
+}
+
+.App:has(.school-popup-modal.active) .filter-controls .filter-dropdown {
+  width: 100%;
+}
+
+.App:has(.school-popup-modal.active) .filter-controls .add-pin-button {
+  width: 100%;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .App:has(.school-popup-modal.active) .filter-controls {
+    top: 140px;
+    right: 10px;
+    width: 200px;
+  }
+
+  .filter-controls {
+    width: 90%;
+    padding: 10px;
+    min-width: auto;
+  }
+}
+
+/* Tablet adjustments */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .App:has(.school-popup-modal.active) .filter-controls {
+    right: 30px;
+    width: 220px;
+  }
+}
+
+/* Update search results positioning when popup is active */
+.App:has(.school-popup-modal.active) .filter-controls .search-results {
+  width: 100%;
+  left: 0;
+}
+
+/* Add transition for smooth animation */
+.filter-controls,
+.filter-controls * {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure dropdown menus appear correctly when filter controls are repositioned */
+.App:has(.school-popup-modal.active) .filter-controls .dropdown-content {
+  width: 100%;
+  left: 0;
+}
+
+.filter-dropdown {
+  position: relative;
+  z-index: 1001; /* Ensure dropdowns appear above other elements */
+}
+
+.filter-dropdown button {
+  padding: 0.7rem 1rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+  color: #495057;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.filter-dropdown button:hover {
+  background: white;
+  border-color: #3498db;
+}
+
+/* Dropdown animation styles */
+.dropdown-content {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  min-width: 100%;
+  z-index: 1002;
+  border: 1px solid #e9ecef;
+  
+  /* Animation properties */
+  transform-origin: top;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scaleY(0.95);
+  transition: all 0.2s cubic-bezier(0.5, 0, 0, 1.25);
+  pointer-events: none;
+}
+
+.dropdown-content.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scaleY(1);
+  pointer-events: auto;
+}
+
+/* Animate dropdown items */
+.dropdown-content div {
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #495057;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.2s ease;
+  transition-delay: calc(var(--item-index) * 0.05s);
+}
+
+.dropdown-content.show div {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.dropdown-content div:hover {
+  background: #f8f9fa;
+  color: #3498db;
+}
+
+.search-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.5rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background: #2980b9;
+}
+
+.school-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  margin: 0 auto 0.5rem;
+  display: block;
+}
+
+.website-link,
+.directions-link {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.8rem 1.5rem;
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #424242;
+  text-decoration: none;
+  border-radius: 25px;
+  text-align: center;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.website-link:hover,
+.directions-link:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.confirmation-buttons button {
+  background: rgba(128, 128, 128, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  color: #424242;
+  font-weight: 500;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.confirmation-buttons button:hover {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.map-view-control {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: fit-content;
+  background: white;
+  padding: 5px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.map-view-control select {
+  width: fit-content;
+  min-width: 120px;
+  padding: 8px 30px 8px 12px;
+  border: 1px solid rgba(44, 62, 80, 0.1);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: 'Quicksand', sans-serif;
+  background-color: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+}
+
+.map-view-control select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.map-view-control select:hover {
+  background-color: rgba(255, 255, 255, 1);
+  border-color: #3498db;
+}
+
+/* Add notification styles */
+.notification {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'Quicksand', sans-serif;
+  animation: slideIn 0.3s ease-out;
+  max-width: 400px;
+}
+
+.notification.success {
+  background: linear-gradient(45deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+.notification.error {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.notification.info {
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  color: white;
+  font-weight: 500;
+}
+
+/* Add a pointer icon to the info notification */
+.notification.info::before {
+  content: "👆";
+  margin-right: 8px;
+  font-size: 1.2em;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: currentColor;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1rem;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Add keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes modalOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Add these classes for closing animations */
+.modal-backdrop.closing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.modal-content.closing {
+  animation: modalOut 0.3s ease-out forwards;
+}
+
+/* Add these styles for the hamburger menu */
+.hamburger-menu {
+  position: relative;
+  margin-left: auto;
+}
+
+.menu-icon {
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon span {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.menu-icon.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-icon.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-icon.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+.menu-items {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  min-width: 200px;
+  z-index: 1000;
+  transform-origin: top right;
+  transform: scale(0);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.menu-items.active {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.menu-items button {
+  width: 100%;
+  padding: 12px 20px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-items button:hover {
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.menu-items .divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 0.5rem 0;
 }
 
 /* Add location button styles */
@@ -1754,6 +2612,7 @@ body {
   visibility: visible;
   pointer-events: auto;
   cursor: default; /* Add this */
+  z-index: 10;
 }
 
 /* Update school info container styles */
@@ -2189,7 +3048,7 @@ body {
 
   /* Update filter controls container */
   .filter-controls {
-    position: fixed;
+    position: absolute; /* Changed from fixed */
     top: 80px;
     left: 50%;
     transform: translateX(-50%);
@@ -3172,10 +4031,28 @@ body {
     .modal-content.school-form-modal {
       width: fit-content !important;
       min-width: 800px;
-      max-width: 90% !important;
+      max-width: 95% !important;
       height: 90vh;
-      padding: 1.5rem; /* Reduced from 2rem */
-      overflow-y: auto;
+      padding: 1.5rem;
+      overflow: hidden !important; /* Force hidden overflow */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      overscroll-behavior: none; /* Prevent scroll chaining */
+      touch-action: none; /* Disable touch scrolling */
+      pointer-events: auto; /* Enable interactions */
+      -webkit-overflow-scrolling: auto; /* Disable momentum scrolling on iOS */
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .modal-content.school-form-modal::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    /* Remove the overflow class and its effects */
+    .modal-content.school-form-modal.has-overflow {
+      overflow: hidden !important;
     }
 
     /* Update form layout for better spacing */
@@ -3272,19 +4149,25 @@ body {
     .modal-content.school-form-modal {
       width: fit-content !important;
       min-width: 800px;
-      max-width: 90% !important;
+      max-width: 95% !important;
       height: 90vh;
-      padding: 1.5rem; /* Reduced from 2rem */
-      overflow-y: auto;
+      padding: 1.5rem;
+      overflow: hidden !important; /* Force hidden overflow */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      overscroll-behavior: none; /* Prevent scroll chaining */
+      touch-action: none; /* Disable touch scrolling */
+      pointer-events: auto; /* Enable interactions */
+      -webkit-overflow-scrolling: auto; /* Disable momentum scrolling on iOS */
     }
 
     /* Update close button styles for school form modal */
     .school-form-modal .close-button {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 32px;
-      height: 32px;
+      top: 54px;
+      right: 45px;
+      width: 40px;
+      height: 40px;
       min-width: 32px;
       min-height: 32px;
       background: white;
@@ -3412,195 +4295,6 @@ body {
       transform: translateX(0);
       opacity: 1;
       z-index: 1599;
-    }
-
-    .school-popup-modal.active .school-info-container {
-      transform: translateX(0);
-      opacity: 1;
-    }
-
-    /* Update modal overlay animation */
-    .modal-overlay {
-      /* ... existing styles ... */
-      transition: opacity 0.6s ease; /* Increased from 0.4s to 0.6s */
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-    }
-
-    /* Remove any conflicting styles */
-    .school-popup-modal.active {
-      transform: translateX(0);
-      opacity: 1;
-      overscroll-behavior: contain;
-      -webkit-overscroll-behavior: contain;
-      /* Remove any scale transforms */
-    }
-
-    /* Mobile responsiveness */
-    @media screen and (max-width: 768px) {
-      .school-popup-modal {
-        width: 100%;
-      }
-      
-      .modal-overlay.active {
-        left: 0;
-      }
-    }
-
-    /* Common styles for both Add and Edit forms */
-    .school-form-modal .school-edit-form,
-    .large-modal .school-edit-form {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 2rem 2rem 3rem; /* Added top padding */
-      margin-top: 1rem; /* Added top margin */
-    }
-
-    /* Heading styles for both forms */
-    .school-form-modal .school-edit-form h2,
-    .large-modal .school-edit-form h2 {
-      font-size: 1.8rem;
-      margin: 0 0 2rem 0; /* Added bottom margin */
-      color: #2c3e50;
-      font-family: 'Quicksand', sans-serif;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    /* Form section spacing for both forms */
-    .school-form-modal .form-section,
-    .large-modal .form-section {
-      margin-top: 1.5rem;
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 12px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    /* Grid layout for entries in both forms */
-    .school-form-modal .program-entry,
-    .school-form-modal .requirement-entry,
-    .school-form-modal .fee-entry,
-    .school-form-modal .scholarship-entry,
-    .large-modal .program-entry,
-    .large-modal .requirement-entry,
-    .large-modal .fee-entry,
-    .large-modal .scholarship-entry {
-      display: grid;
-      grid-template-columns: 200px 350px auto;
-      gap: 1rem;
-      width: 100%;
-      align-items: start;
-    }
-
-    /* Form buttons container for both forms */
-    .school-form-modal .form-buttons,
-    .large-modal .form-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-      margin: 3rem 0 1.5rem 0;
-      padding: 1rem 0;
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
-      width: 100%;
-    }
-
-    /* Button styles for both forms */
-    .school-form-modal .form-buttons button,
-    .large-modal .form-buttons button {
-      min-width: 180px; /* Increased from 150px for better uniformity */
-      padding: 0.8rem 1.5rem;
-      border-radius: 25px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      text-align: center;
-      font-size: 0.95rem;
-      width: 180px; /* Fixed width for both buttons */
-    }
-
-    /* Cancel button styles for both forms */
-    .school-form-modal .form-buttons .cancel-button,
-    .large-modal .form-buttons .cancel-button {
-      background: rgba(231, 76, 60, 0.1);
-      color: #e74c3c;
-      border: 1px solid rgba(231, 76, 60, 0.2);
-      width: 180px; /* Fixed width */
-    }
-
-    /* Cancel button hover animation */
-    .school-form-modal .form-buttons .cancel-button:hover,
-    .large-modal .form-buttons .cancel-button:hover {
-      background: linear-gradient(45deg, #e74c3c, #c0392b);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
-      border: none;
-    }
-
-    /* Submit button styles for both forms */
-    .school-form-modal .form-buttons button[type="submit"],
-    .large-modal .form-buttons button[type="submit"] {
-      background: rgba(52, 152, 219, 0.1);
-      color: #3498db;
-      border: 1px solid rgba(52, 152, 219, 0.2);
-      width: 180px; /* Fixed width */
-    }
-
-    /* Submit button hover animation */
-    .school-form-modal .form-buttons button[type="submit"]:hover,
-    .large-modal .form-buttons button[type="submit"]:hover {
-      background: linear-gradient(45deg, #3498db, #2980b9);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
-      border: none;
-    }
-
-    /* Style for the cancel pin button */
-    .add-pin-button.canceling {
-      background: rgba(231, 76, 60, 0.1); /* Light red background */
-      color: #e74c3c; /* Red text */
-      border: 1px solid rgba(231, 76, 60, 0.2);
-    }
-
-    .add-pin-button.canceling:hover {
-      background: linear-gradient(45deg, #e74c3c, #c0392b); /* Red gradient */
-      color: white;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
-      border: none;
-    }
-
-    /* Update school popup modal animation */
-    .school-popup-modal {
-      /* ... existing styles ... */
-      transform: translateX(-120%);
-      opacity: 0;
-      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Increased from 0.5s to 0.8s */
-      will-change: transform, opacity;
-    }
-
-    /* Update school info container animation */
-    .school-info-container {
-      /* ... existing styles ... */
-      transform: translateX(-80px); /* Increased from -50px for more visible movement */
-      opacity: 0;
-      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Increased from 0.5s to 0.8s */
-      transition-delay: 0.2s; /* Increased delay for more noticeable stagger effect */
-      will-change: transform, opacity;
-    }
-
-    /* Update active states */
-    .school-popup-modal.active {
-      transform: translateX(0);
-      opacity: 1;
-      z-index: 1200;
     }
 
     .school-popup-modal.active .school-info-container {
@@ -4362,5 +5056,537 @@ body {
   .direction-button:disabled:hover {
     transform: none;
     box-shadow: none;
+  }
+
+  /* Add these styles for better tile loading */
+  .leaflet-container {
+    background: #f8f9fa !important; /* Light background color while loading */
+  }
+
+  .map-tiles {
+    filter: contrast(1.1) saturate(1.1); /* Slightly enhance tile visibility */
+    will-change: transform; /* Optimize for animations */
+  }
+
+  /* Optional: Add a subtle transition when tiles load */
+  .leaflet-tile-loaded {
+    animation: tileAppear 0.2s ease-out;
+  }
+
+  @keyframes tileAppear {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Direction button styles */
+  .direction-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Quicksand', sans-serif;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+  }
+
+  .direction-button:hover {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    border: none;
+  }
+
+  .direction-button:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .direction-button .button-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 4px;
+  }
+
+  /* Add this if you want to show a different style when directions are active */
+  .direction-button.active {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+  }
+
+  /* Update custom cursor for pin mode */
+  .leaflet-container.adding-pin,
+  .leaflet-container.adding-pin .leaflet-interactive {
+    cursor: pointer !important;
+  }
+
+  /* Optional: You can also use a custom pin image as cursor */
+  .leaflet-container.adding-pin,
+  .leaflet-container.adding-pin .leaflet-interactive,
+  .leaflet-container.adding-pin .leaflet-marker-icon,
+  .leaflet-container.adding-pin .leaflet-marker-draggable,
+  .leaflet-container.adding-pin .leaflet-image-layer,
+  .leaflet-container.adding-pin .leaflet-pane {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23e74c3c' stroke='white' stroke-width='2'%3E%3Cpath d='M12 21.7C17.3 16 20 11.6 20 8.3c0-3.9-3.1-7.1-7-7.1S6 4.4 6 8.3c0 3.3 2.7 7.7 8 13.4zm0-11.9c1.3 0 2.4-1.1 2.4-2.4S13.3 5 12 5s-2.4 1.1-2.4 2.4 1.1 2.4 2.4 2.4z'/%3E%3C/svg%3E") 16 32, pointer !important;
+  }
+
+  /* Profile Modal Styles */
+  .profile-modal {
+    width: 600px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+  }
+
+  .profile-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-section h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  .profile-form .form-group {
+    margin-bottom: 1.2rem;
+  }
+
+  .profile-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .profile-form input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: white;
+  }
+
+  .profile-form input:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+  }
+
+  .profile-form input::placeholder {
+    color: #95a5a6;
+  }
+
+  .profile-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-buttons button {
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+  }
+
+  /* Save Profile button */
+  .profile-buttons .save-button {
+    background: #3498db;
+    color: white;
+    border: none;
+  }
+
+  .profile-buttons .save-button:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+  }
+
+  /* Loading state for save button */
+  .profile-buttons .save-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Button spinner */
+  .button-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* School details container styles */
+  .school-details-container {
+    position: fixed;
+    left: 20px;
+    top: 90px; /* Adjust based on your header height + desired spacing */
+    z-index: 1000;
+    width: 400px;
+    max-width: calc(100vw - 40px);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Adjust the school details modal when inside the container */
+  .school-details-container .school-details-modal {
+    position: relative;
+    width: fit-content;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  /* Make sure the modal scrolls properly */
+  .school-details-container .school-details-content {
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    .school-details-container {
+      left: 10px;
+      right: 10px;
+      width: auto;
+      top: 80px;
+    }
+  }
+
+  /* Enhanced School Details Container Styles */
+  .school-details-container {
+    position: fixed;
+    left: 20px;
+    top: 90px;
+    z-index: 1000;
+    width: fit-content;
+    min-width: 380px;
+    max-width: 500px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(52, 152, 219, 0.5) transparent;
+  }
+
+  /* School Details Content Styling */
+  .school-details-modal {
+    padding: 2rem;
+    width: fit-content;
+    min-width: 380px;
+  }
+
+  .school-details-content {
+    width: 100%;
+    min-width: 380px;
+  }
+
+  /* Detail Group adjustments */
+  .detail-group {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: rgba(52, 152, 219, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Fee item adjustments */
+  .fee-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem 0;
+    margin: 0.3rem 0;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+    gap: 2rem;
+  }
+
+  .fee-item span:first-child {
+    flex: 1;
+  }
+
+  .fee-item span:last-child {
+    white-space: nowrap;
+  }
+
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    .school-details-container {
+      left: 10px;
+      right: 10px;
+      width: auto;
+      min-width: unset;
+      max-width: calc(100vw - 20px);
+      top: 80px;
+    }
+
+    .school-details-modal,
+    .school-details-content {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+
+  /* Scrollbar styling */
+  .school-details-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .school-details-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .school-details-container::-webkit-scrollbar-thumb {
+    background-color: rgba(52, 152, 219, 0.5);
+    border-radius: 3px;
+  }
+
+  /* School Details Content Styling */
+  .school-details-modal {
+    padding: 2rem;
+  }
+
+  .school-details-content h2 {
+    font-size: 1.6rem;
+    color: #2c3e50;
+    margin: 0 0 2rem 0;
+    font-weight: 600;
+    line-height: 1.3;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+  }
+
+  .school-info-section {
+    margin-bottom: 2.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    color: #34495e;
+    padding: 0.5rem 0;
+  }
+
+  /* School Details Section Styling */
+  .school-details-section {
+    padding: 0 0.5rem;
+  }
+
+  .detail-group {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: rgba(52, 152, 219, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+  }
+
+  .detail-group h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: -1.5rem 0 1.5rem 0; /* Adjusted top margin */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 1rem 0; /* Equal padding top and bottom */
+    border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+    text-align: center;
+    height: 40px; /* Fixed height for consistency */
+    line-height: 40px; /* Match height for vertical centering */
+  }
+
+  .detail-group h4 {
+    color: #34495e;
+    font-size: 1rem;
+    margin: 1.2rem 0 0.8rem 0;
+    font-weight: 600;
+  }
+
+  .detail-group ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.8rem 0;
+    text-align: left;
+  }
+
+  .detail-group li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.8rem;
+    color: #576574;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .detail-group li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #3498db;
+  }
+
+  /* Program item styles */
+  .program-item {
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .program-item h4 {
+    color: #34495e;
+    font-size: 1rem;
+    margin: 1.5rem 0 1rem 0;
+    padding: 0.5rem 0;
+    font-weight: 600;
+    text-align: left; /* Changed from center to left */
+    padding-left: 0.5rem; /* Add some left padding */
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .programs-bullet-list {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    text-align: left;
+  }
+
+  /* Requirements group styles */
+  .requirement-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .requirement-group strong {
+    display: block;
+    margin: 1rem 0; /* Equal margins top and bottom */
+    padding: 0.5rem 0; /* Added padding */
+    color: #34495e;
+    text-align: center;
+    height: 30px; /* Fixed height */
+    line-height: 30px; /* Match height */
+  }
+
+  /* Action Buttons Styling */
+  .modal-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding: 1.5rem 0;
+  }
+
+  /* Full-width button (Get Directions) */
+  .modal-actions .direction-button {
+    grid-column: 1 / -1; /* Span full width */
+    background: #3498db;
+    color: white;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  /* Half-width buttons (Edit and Delete) */
+  .modal-actions .edit-button,
+  .modal-actions .delete-button {
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  .modal-actions .edit-button {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+  }
+
+  .modal-actions .delete-button {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+  }
+
+  .modal-actions button:hover {
+    transform: translateY(-2px);
+  }
+
+  .modal-actions .direction-button:hover {
+    background: #2980b9;
+  }
+
+  .modal-actions .edit-button:hover {
+    background: rgba(46, 204, 113, 0.2);
+  }
+
+  .modal-actions .delete-button:hover {
+    background: rgba(231, 76, 60, 0.2);
   }
 

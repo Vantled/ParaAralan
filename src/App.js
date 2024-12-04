@@ -16,6 +16,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import FilterControls from './components/FilterControls';
 import SchoolEditForm from './components/SchoolEditForm';
 import LoadingSpinner from './components/LoadingSpinner';
+import SchoolDetailsModal from './components/SchoolDetailsModal';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -66,35 +67,95 @@ const customPin = L.divIcon({
 
 // Create a new MapControls component that will be used inside MapContainer
 function MapControls({ setUserLocation }) {
-  const map = useMap();  // This is now safe because it's inside MapContainer
+  const map = useMap();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleLocationClick = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const location = [latitude, longitude];
-          setUserLocation(location);
-          map.flyTo(location, 16, {
-            duration: 2
-          });
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-        },
-        {
-          enableHighAccuracy: true,  // Request high accuracy
-          timeout: 5000,  // Wait up to 5 seconds
-          maximumAge: 0  // Always get fresh location
-        }
-      );
+  const handleLocationClick = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    // Check if we're in a secure context
+    if (!window.isSecureContext) {
+      setError("Location requires a secure connection (HTTPS)");
+      setIsLoading(false);
+      return;
+    }
+
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      });
+
+      const { latitude, longitude } = position.coords;
+      const location = [latitude, longitude];
+      
+      setUserLocation(location);
+      map.flyTo(location, 16, {
+        duration: 2
+      });
+      
+      setIsLoading(false);
+
+    } catch (error) {
+      console.error("Location error:", error);
+      let errorMessage;
+      
+      if (error.code === 1) {
+        errorMessage = "Location access was denied. Please check your browser settings and ensure you're using HTTPS.";
+      } else if (error.code === 2) {
+        errorMessage = "Unable to determine your location. Please try again.";
+      } else if (error.code === 3) {
+        errorMessage = "Location request timed out. Please try again.";
+      } else {
+        errorMessage = "Unable to access location services. Please try again.";
+      }
+      
+      setError(errorMessage);
+      setIsLoading(false);
     }
   };
 
   return (
-    <button className="location-button" onClick={handleLocationClick}>
-      📍 My Location
-    </button>
+    <>
+      <button 
+        className={`location-button ${isLoading ? 'loading' : ''} ${error ? 'error' : ''}`}
+        onClick={handleLocationClick}
+        disabled={isLoading}
+        title="Click to find your current location"
+      >
+        {isLoading ? (
+          <>
+            <span className="button-spinner"></span>
+            Getting location...
+          </>
+        ) : error ? (
+          '⚠️ Location Error'
+        ) : (
+          '📍 My Location'
+        )}
+      </button>
+      {error && (
+        <div className="location-error-tooltip">
+          {error}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -173,7 +234,7 @@ function MapContent({
   }, [routingControl]);
 
   const showDirections = (schoolPosition) => {
-    if (userLocation) {
+    if (userLocation && map) {
       // Remove existing route if any
       if (routingControl) {
         routingControl.remove();
@@ -185,7 +246,7 @@ function MapContent({
           const control = L.Routing.control({
             waypoints: [
               L.latLng(userLocation[0], userLocation[1]),
-              L.latLng(schoolPosition.lat, schoolPosition.lng)
+              L.latLng(schoolPosition[0], schoolPosition[1])
             ],
             router: L.Routing.osrmv1({
               serviceUrl: 'https://router.project-osrm.org/route/v1'
@@ -200,7 +261,7 @@ function MapContent({
             addWaypoints: false,
             draggableWaypoints: false,
             fitSelectedRoutes: true,
-            createMarker: function() { return null; } // Remove waypoint markers
+            createMarker: function() { return null; }
           });
 
           control.addTo(map);
@@ -239,7 +300,7 @@ function MapContent({
         key={currentMapView}
         url={mapLayers[currentMapView].url}
         attribution={mapLayers[currentMapView].attribution}
-        bounds={LUZON_VIEW_BOUNDS}  // Show Luzon map tiles
+        bounds={LUZON_VIEW_BOUNDS}
       />
       <div className="map-controls-container">
         <CustomZoomControl map={map} />
@@ -273,170 +334,11 @@ function MapContent({
           eventHandlers={{
             click: () => setSelectedSchool(school)
           }}
+          data-school-id={school.id}
         >
-          <div className="pin-container" data-school-id={school.id}>
-            <Tooltip 
-              permanent 
-              direction="top" 
-              offset={[0, -30]} 
-              className="school-name-label"
-              opacity={1}
-            >
-              {school.name}
-            </Tooltip>
-          </div>
+          <Tooltip>{school.name}</Tooltip>
         </Marker>
       ))}
-      {selectedSchool && (
-        <div className="school-popup-modal active">
-          <button 
-            className="close-button" 
-            onClick={() => {
-              setSelectedSchool(null);
-              if (routingControl) {
-                routingControl.remove();
-                setRoutingControl(null);
-                setShowingDirections(false);
-              }
-            }}
-          >
-            ×
-          </button>
-          <div className="school-info-container">
-            <h2 className="school-title">{selectedSchool.name}</h2>
-            
-            <div className="location-info">
-              <span className="location-icon">📍</span>
-              <span>{selectedSchool.location}</span>
-            </div>
-
-            <div className="contact-info">
-              <div className="contact-item">
-                <span>📞</span>
-                <a href={`tel:${selectedSchool.contact}`}>{selectedSchool.contact}</a>
-              </div>
-              <button 
-                className="website-button"
-                onClick={() => window.open(selectedSchool.websiteUrl, '_blank')}
-              >
-                Visit Website
-              </button>
-            </div>
-
-            <div className="info-section">
-              <h3><span className="icon">🎓</span> Academic Programs Offered</h3>
-              <div className="programs-list">
-                {selectedSchool.academicPrograms?.map((college, index) => (
-                  <div key={index} className="college-item">
-                    <strong>{college.name}:</strong>
-                    <ul className="programs-bullet-list">
-                      {college.programs.map((program, progIndex) => (
-                        <li key={progIndex}>{program}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {Object.keys(selectedSchool.admissionRequirements || {}).length > 0 && (
-              <div className="info-section">
-                <h3><span className="icon">📝</span> Admission Requirements</h3>
-                {Object.entries(selectedSchool.admissionRequirements || {}).map(([type, requirements], index) => (
-                  <div key={index} className="requirements-group">
-                    <strong>For {type}:</strong>
-                    <ul>
-                      {requirements.map((req, reqIndex) => (
-                        <li key={reqIndex}>{req}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {Object.keys(selectedSchool.tuitionFees || {}).length > 0 && (
-              <div className="info-section">
-                <h3><span className="icon">💰</span> Tuition Fees</h3>
-                <div className="fees-list">
-                  {Object.entries(selectedSchool.tuitionFees || {}).map(([fee, amount], index) => (
-                    <div key={index} className="fee-item">
-                      <span>{fee}:</span> <strong>₱{amount}</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {selectedSchool.scholarships?.length > 0 && (
-              <div className="info-section">
-                <h3><span className="icon">🎯</span> Scholarships Available</h3>
-                <ul className="scholarships-list">
-                  {selectedSchool.scholarships?.map((scholarship, index) => (
-                    <li key={index}>{scholarship}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {(selectedSchool.campusLife?.organizations?.length > 0 || 
-              selectedSchool.campusLife?.facilities?.length > 0) && (
-              <div className="info-section">
-                <h3><span className="icon">🏫</span> Campus Life</h3>
-                <div className="campus-info">
-                  {selectedSchool.campusLife?.organizations?.length > 0 && (
-                    <div className="campus-item">
-                      <strong>Student Organizations:</strong>
-                      <ul>
-                        {selectedSchool.campusLife?.organizations?.map((org, index) => (
-                          <li key={index}>{org}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {selectedSchool.campusLife?.facilities?.length > 0 && (
-                    <div className="campus-item">
-                      <strong>Facilities:</strong>
-                      <ul>
-                        {selectedSchool.campusLife?.facilities?.map((facility, index) => (
-                          <li key={index}>{facility}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="action-buttons">
-              {userLocation && (
-                <button
-                  onClick={() => showDirections(selectedSchool.position)}
-                  className="direction-button"
-                >
-                  {showingDirections ? 'Hide Directions' : 'Show Directions'}
-                </button>
-              )}
-              {user && isAdmin && (
-                <>
-                  <button 
-                    onClick={() => handleEditSchool(selectedSchool)}
-                    className="edit-button"
-                  >
-                    Edit Information
-                  </button>
-                  <button 
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="delete-button"
-                  >
-                    Delete School
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
@@ -492,14 +394,14 @@ function Map({ mapRef, ...props }) {
 
       <MapContainer
         center={[DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]}
-        zoom={15}  // Changed back to original zoom level
+        zoom={15}
         style={{ 
           height: window.innerWidth <= 768 ? 'calc(100vh - 140px)' : 'calc(100vh - 70px)', 
           marginTop: window.innerWidth <= 768 ? '140px' : '70px' 
         }}
         onClick={props.handleMapClick}
         maxBounds={LUZON_VIEW_BOUNDS}
-        maxBoundsViscosity={0.8}  // Slightly reduced to make panning smoother
+        maxBoundsViscosity={1.0}
         minZoom={MIN_ZOOM}
         maxZoom={MAX_ZOOM}
         doubleClickZoom={false}
@@ -508,7 +410,27 @@ function Map({ mapRef, ...props }) {
         wheelPxPerZoomLevel={100}
         zoomControl={false}
         tap={true}
+        preferCanvas={true}
+        keepBuffer={8}
+        updateWhenZooming={false}
+        updateWhenIdle={true}
+        bounds={LUZON_VIEW_BOUNDS}
+        className={props.isAddingPin ? 'adding-pin' : ''}
       >
+        <TileLayer
+          key={currentMapView}
+          url={mapLayers[currentMapView].url}
+          attribution={mapLayers[currentMapView].attribution}
+          bounds={LUZON_VIEW_BOUNDS}
+          minZoom={MIN_ZOOM}
+          maxZoom={MAX_ZOOM}
+          tileSize={256}
+          keepBuffer={8}
+          updateWhenIdle={true}
+          updateWhenZooming={false}
+          noWrap={true}
+          className="map-tiles"
+        />
         <MapContent 
           {...props} 
           currentMapView={currentMapView}
@@ -522,7 +444,76 @@ function Map({ mapRef, ...props }) {
   );
 }
 
+// Add this new component near the top of your file
+function HamburgerMenu({ user, handleLogout, setShowLoginModal, setShowRegisterModal }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleMenuClick = (action) => {
+    setIsOpen(false);
+    if (action === 'login') setShowLoginModal(true);
+    if (action === 'register') setShowRegisterModal(true);
+    if (action === 'logout') handleLogout();
+  };
+
+  return (
+    <div className="hamburger-menu">
+      <button 
+        className={`menu-icon ${isOpen ? 'active' : ''}`} 
+        onClick={toggleMenu}
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div className={`menu-items ${isOpen ? 'active' : ''}`}>
+        {user ? (
+          <>
+            <button onClick={() => handleMenuClick('profile')}>
+              <i className="fas fa-user"></i> User Profile
+            </button>
+            <button onClick={() => handleMenuClick('bookmarks')}>
+              <i className="fas fa-bookmark"></i> Bookmarks
+            </button>
+            <div className="divider"></div>
+          </>
+        ) : (
+          <>
+            <button onClick={() => handleMenuClick('login')}>
+              <i className="fas fa-sign-in-alt"></i> Login
+            </button>
+            <button onClick={() => handleMenuClick('register')}>
+              <i className="fas fa-user-plus"></i> Register
+            </button>
+            <div className="divider"></div>
+          </>
+        )}
+        <button onClick={() => handleMenuClick('about')}>
+          <i className="fas fa-info-circle"></i> About Us
+        </button>
+        <button onClick={() => handleMenuClick('howItWorks')}>
+          <i className="fas fa-question-circle"></i> How it works
+        </button>
+        {user && (
+          <>
+            <div className="divider"></div>
+            <button onClick={() => handleMenuClick('logout')}>
+              <i className="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
+  const [routingControl, setRoutingControl] = useState(null);
+  const [showingDirections, setShowingDirections] = useState(false);
   const mapRef = useRef(null);
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState('student');
@@ -912,6 +903,47 @@ function App() {
     }
   };
 
+  const showDirections = (schoolPosition) => {
+    if (userLocation && mapRef.current) {
+      // Remove existing route if any
+      if (routingControl) {
+        routingControl.remove();
+        setRoutingControl(null);
+        setShowingDirections(false);
+      } else {
+        try {
+          // Create new route
+          const control = L.Routing.control({
+            waypoints: [
+              L.latLng(userLocation[0], userLocation[1]),
+              L.latLng(schoolPosition[0], schoolPosition[1])
+            ],
+            router: L.Routing.osrmv1({
+              serviceUrl: 'https://router.project-osrm.org/route/v1'
+            }),
+            routeWhileDragging: false,
+            lineOptions: {
+              styles: [
+                { color: '#3498db', opacity: 0.8, weight: 4 }
+              ]
+            },
+            show: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true,
+            createMarker: function() { return null; }
+          });
+
+          control.addTo(mapRef.current);
+          setRoutingControl(control);
+          setShowingDirections(true);
+        } catch (error) {
+          console.error('Error showing directions:', error);
+        }
+      }
+    }
+  };
+
   return (
     <div className="App">
       <div className="header">
@@ -919,17 +951,17 @@ function App() {
           <img src={logo} alt="ParaAralan Logo" className="header-logo" />
           <h1 className="app-title">Welcome to ParaAralan!</h1>
         </div>
-        {user ? (
-          <div className="user-controls">
+        {user && (
+          <div className="user-welcome">
             <h2>Welcome, {userName}</h2>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
-        ) : (
-          <div className="auth-buttons">
-            <button onClick={() => setShowLoginModal(true)}>Login</button>
-            <button onClick={() => setShowRegisterModal(true)}>Register</button>
           </div>
         )}
+        <HamburgerMenu
+          user={user}
+          handleLogout={handleLogout}
+          setShowLoginModal={setShowLoginModal}
+          setShowRegisterModal={setShowRegisterModal}
+        />
       </div>
 
       <FilterControls 
@@ -1077,6 +1109,32 @@ function App() {
           type={notification.type}
           onClose={() => setNotification(null)}
         />
+      )}
+
+      {selectedSchool && (
+        <div className="school-details-container">
+          <SchoolDetailsModal
+            school={selectedSchool}
+            onClose={() => {
+              setSelectedSchool(null);
+              if (routingControl) {
+                routingControl.remove();
+                setRoutingControl(null);
+                setShowingDirections(false);
+              }
+            }}
+            userLocation={userLocation}
+            showDirections={(position) => {
+              if (userLocation) {
+                showDirections(position);
+              }
+            }}
+            isAdmin={isAdmin}
+            handleEditSchool={handleEditSchool}
+            showingDirections={showingDirections}
+            setShowDeleteConfirm={setShowDeleteConfirm}
+          />
+        </div>
       )}
     </div>
   );

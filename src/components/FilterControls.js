@@ -1,11 +1,36 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function FilterControls({ filters, setFilters, schools, onSchoolSelect, isAdmin, onAddPin, isAddingPin }) {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showScholarshipDropdown, setShowScholarshipDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const searchRef = useRef(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const dropdownRef = useRef(null);
+
+  // Handle clicks outside dropdowns
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowTypeDropdown(false);
+        setShowScholarshipDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleTypeClick = () => {
+    setShowTypeDropdown(!showTypeDropdown);
+    setShowScholarshipDropdown(false); // Close scholarship dropdown
+  };
+
+  const handleScholarshipClick = () => {
+    setShowScholarshipDropdown(!showScholarshipDropdown);
+    setShowTypeDropdown(false); // Close type dropdown
+  };
 
   const handleTypeSelect = (type) => {
     setFilters({ ...filters, type });
@@ -19,41 +44,25 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect, isAdmin,
 
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
-    setShowSearchResults(searchTerm.length > 0);
+    setSearchResults(schools.filter(school => {
+      const term = searchTerm.toLowerCase();
+      return (
+        school.name.toLowerCase().startsWith(term) ||
+        school.location?.toLowerCase().startsWith(term) ||
+        school.type?.toLowerCase().startsWith(term)
+      );
+    }));
   };
 
   const handleSchoolSelect = (school) => {
     onSchoolSelect(school);
     setSearchTerm('');
-    setShowSearchResults(false);
+    setSearchResults([]);
   };
 
-  // Filter schools based on search term - match only from the beginning of strings
-  const searchResults = schools.filter(school => {
-    const term = searchTerm.toLowerCase();
-    return (
-      school.name.toLowerCase().startsWith(term) ||
-      school.location?.toLowerCase().startsWith(term) ||
-      school.type?.toLowerCase().startsWith(term)
-    );
-  });
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowSearchResults(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
   return (
-    <div className="filter-controls">
-      <div className="search-container" ref={searchRef}>
+    <div className="filter-controls" ref={dropdownRef}>
+      <div className="search-container">
         <span className="search-icon">⌕</span>
         <input
           type="text"
@@ -62,51 +71,49 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect, isAdmin,
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
         />
-        {showSearchResults && searchTerm && (
+        {searchResults.length > 0 && (
           <div className="search-results">
-            {searchResults.length > 0 ? (
-              searchResults.map((school) => (
-                <div
-                  key={school.id}
-                  className="search-result-item"
-                  onClick={() => handleSchoolSelect(school)}
-                >
-                  {school.name}
-                </div>
-              ))
-            ) : (
-              <div className="search-result-item no-results">
-                No schools found
+            {searchResults.map((school) => (
+              <div
+                key={school.id}
+                className="search-result-item"
+                onClick={() => handleSchoolSelect(school)}
+              >
+                {school.name}
               </div>
-            )}
+            ))}
           </div>
         )}
       </div>
 
       <div className="filter-dropdown">
-        <button onClick={() => setShowTypeDropdown(!showTypeDropdown)}>
+        <button onClick={handleTypeClick}>
           {filters.type || 'School Type'}
         </button>
-        <div className={`dropdown-content ${showTypeDropdown ? 'show' : ''}`}>
-          <div style={{'--item-index': 0}} onClick={() => handleTypeSelect('')}>All Types</div>
-          <div style={{'--item-index': 1}} onClick={() => handleTypeSelect('university')}>University</div>
-          <div style={{'--item-index': 2}} onClick={() => handleTypeSelect('college')}>College</div>
-        </div>
+        {showTypeDropdown && (
+          <div className="dropdown-content show">
+            <div onClick={() => handleTypeSelect('')}>All Types</div>
+            <div onClick={() => handleTypeSelect('university')}>University</div>
+            <div onClick={() => handleTypeSelect('college')}>College</div>
+          </div>
+        )}
       </div>
 
       <div className="filter-dropdown">
-        <button onClick={() => setShowScholarshipDropdown(!showScholarshipDropdown)}>
+        <button onClick={handleScholarshipClick}>
           {filters.hasScholarship === null
             ? 'Scholarship'
             : filters.hasScholarship
             ? 'Has Scholarship'
             : 'No Scholarship'}
         </button>
-        <div className={`dropdown-content ${showScholarshipDropdown ? 'show' : ''}`}>
-          <div style={{'--item-index': 0}} onClick={() => handleScholarshipSelect(null)}>All</div>
-          <div style={{'--item-index': 1}} onClick={() => handleScholarshipSelect(true)}>Has Scholarship</div>
-          <div style={{'--item-index': 2}} onClick={() => handleScholarshipSelect(false)}>No Scholarship</div>
-        </div>
+        {showScholarshipDropdown && (
+          <div className="dropdown-content show">
+            <div onClick={() => handleScholarshipSelect(null)}>All</div>
+            <div onClick={() => handleScholarshipSelect(true)}>Has Scholarship</div>
+            <div onClick={() => handleScholarshipSelect(false)}>No Scholarship</div>
+          </div>
+        )}
       </div>
 
       {isAdmin && (
