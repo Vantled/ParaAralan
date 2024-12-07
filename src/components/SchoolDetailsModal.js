@@ -1,33 +1,6 @@
 import React from 'react';
-import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import confetti from 'canvas-confetti';
 
-function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isAdmin, handleEditSchool, showingDirections, setShowDeleteConfirm, isBookmarked, onToggleBookmark }) {
-  const triggerConfetti = (buttonElement) => {
-    const rect = buttonElement.getBoundingClientRect();
-    const x = (rect.left + rect.right) / 2 / window.innerWidth;
-    const y = (rect.top + rect.bottom) / 2 / window.innerHeight;
-
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { x, y },
-      colors: ['#f1c40f', '#f39c12', '#e67e22'],  // Yellow/gold colors
-      ticks: 100,
-      startVelocity: 30,
-      shapes: ['star'],
-      scalar: 0.7,
-      gravity: 1.2
-    });
-  };
-
-  const handleBookmarkClick = (e) => {
-    if (!isBookmarked) {  // Only trigger confetti when bookmarking, not when removing
-      triggerConfetti(e.currentTarget);
-    }
-    onToggleBookmark(school);
-  };
-
+function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isAdmin, handleEditSchool, showingDirections, setShowDeleteConfirm }) {
   if (!school) return null;
 
   return (
@@ -47,25 +20,14 @@ function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isA
             <a href={`tel:${school.contact}`}>{school.contact}</a>
           </div>
 
-          <div className="info-row">
-            <i className="fas fa-globe"></i>
-            <div className="website-row">
-              {school.websiteUrl ? (
-                <a href={school.websiteUrl} target="_blank" rel="noopener noreferrer">
-                  Visit Website
-                </a>
-              ) : (
-                <span style={{ color: '#7f8c8d' }}>No website available</span>
-              )}
-              <button 
-                className={`bookmark-button ${isBookmarked ? 'bookmarked' : ''}`}
-                onClick={handleBookmarkClick}
-                title={isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
-              >
-                <i className={`${isBookmarked ? 'fas' : 'far'} fa-bookmark`}></i>
-              </button>
+          {school.websiteUrl && (
+            <div className="info-row">
+              <i className="fas fa-globe"></i>
+              <a href={school.websiteUrl} target="_blank" rel="noopener noreferrer">
+                Visit Website
+              </a>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="school-details-section">
@@ -147,7 +109,7 @@ function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isA
                 onClick={() => handleEditSchool(school)}
               >
                 <i className="fas fa-edit"></i>
-                Edit Information
+                Edit School
               </button>
               <button 
                 className="delete-button"

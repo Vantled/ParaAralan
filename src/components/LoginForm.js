@@ -3,7 +3,7 @@ import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, fetchSignI
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import LoadingSpinner from './LoadingSpinner';
 
-function LoginForm({ setUser, setUserType, onClose, showNotification, setShowRegisterModal }) {
+function LoginForm({ setUser, setUserType, onClose, showNotification }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,31 +26,12 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
 
       setUser(userCredential.user);
       setUserType(userData?.userType || 'student');
-      
-      // Show notification first
-      showNotification('Successfully logged in!', 'success');
-      
-      // Wait for notification to be seen
-      setTimeout(() => {
-        // Add blur effect
-        document.body.classList.add('page-transitioning');
-        
-        // Reload after a brief moment of blur
-        setTimeout(() => {
-          window.location.reload();
-        }, 500); // Reload 0.5 seconds after blur starts
-        
-        // Blur will continue during and after reload for smooth transition
-        
-      }, 1500); // Wait 1.5s after success notification before starting blur
-      
+      showNotification('Successfully logged in!');
+      onClose();
+      window.location.reload();
     } catch (error) {
-      if (error.code === 'auth/invalid-credential') {
-        setError('Incorrect email or password.');
-      } else {
-        setError('An error occurred. Please try again.');
-        showNotification('An error occurred. Please try again.', 'error');
-      }
+      setError(error.message);
+      showNotification(error.message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -85,11 +66,6 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
     } finally {
       setIsResetting(false);
     }
-  };
-
-  const handleCreateAccount = () => {
-    onClose(); // Close login modal
-    setShowRegisterModal(true); // Open register modal
   };
 
   if (showForgotPassword) {
@@ -180,22 +156,19 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
           <button 
             type="button"
             onClick={() => setShowForgotPassword(true)}
-            className="text-link"
+            className="forgot-password-button"
             disabled={isLoading}
           >
             Forgot Password?
           </button>
-          <div className="register-link">
-            Don't have an account? 
-            <button 
-              type="button"
-              onClick={handleCreateAccount}
-              className="text-link"
-              disabled={isLoading}
-            >
-              Create one
-            </button>
-          </div>
+          <button 
+            type="button"
+            onClick={onClose}
+            className="create-account-button"
+            disabled={isLoading}
+          >
+            Don't have an account? <span className="link-text">Create one</span>
+          </button>
         </div>
       </form>
     </div>

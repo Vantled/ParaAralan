@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
-function RegisterForm({ setUser, setUserType, onClose, showNotification, setShowLoginModal }) {
+function RegisterForm({ setUser, setUserType, onClose, showNotification }) {
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
   
@@ -164,11 +164,6 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleLogin = () => {
-    onClose(); // Close register modal
-    setShowLoginModal(true); // Open login modal
   };
 
   const renderStep = () => {
@@ -368,17 +363,14 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
         </button>
         
         <div className="form-links">
-          <div className="login-link">
-            Already have an account? 
-            <button 
-              type="button"
-              onClick={handleLogin}
-              className="text-link"
-              disabled={isLoading}
-            >
-              Login here
-            </button>
-          </div>
+          <button 
+            type="button"
+            onClick={onClose}
+            className="create-account-button"
+            disabled={isLoading}
+          >
+            Already have an account? <span className="link-text">Login here</span>
+          </button>
         </div>
       </form>
     </div>
