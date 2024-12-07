@@ -199,7 +199,6 @@ function CustomZoomControl({ map }) {
   );
 }
 
-// Create a new MapContent component that will be used inside MapContainer
 function MapContent({ 
   handleMapClick, 
   schools, 
@@ -222,14 +221,12 @@ function MapContent({
   const [showingDirections, setShowingDirections] = useState(false);
   const markerRef = useRef(null);
 
-  // Store map reference when component mounts
   useEffect(() => {
     if (map) {
       setMapRef(map);
     }
   }, [map, setMapRef]);
 
-  // Add cleanup effect for routing control
   useEffect(() => {
     return () => {
       if (routingControl) {

@@ -5342,6 +5342,7 @@ body {
   .school-details-content {
     width: 100%;
     min-width: 380px;
+    margin-top: 1rem;
   }
 
   /* Detail Group adjustments */
@@ -5581,6 +5582,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.8rem;
+    margin-top: -2rem;
   }
 
   /* Half-width buttons (Edit and Delete) */
@@ -6848,6 +6850,7 @@ body {
 
   .directions-content {
     padding: 15px;
+    margin-top: -3rem;
   }
 
   .route-points {
@@ -6980,7 +6983,7 @@ body {
   border-radius: 8px;
   background: white;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   min-width: 80px;
 }
 
@@ -7027,4 +7030,68 @@ body {
     min-width: unset;
     max-width: calc(100vw - 20px);
   }
+}
+
+/* Add loading indicator styles */
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.loading-indicator .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(52, 152, 219, 0.1);
+  border-radius: 50%;
+  border-top-color: #3498db;
+  animation: spin 1s linear infinite;
+}
+
+.loading-indicator p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Update transport modes styles */
+.transport-modes {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.mode-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 80px;
+  opacity: 1;
+}
+
+.mode-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.mode-button.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #2196f3;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+.mode-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
