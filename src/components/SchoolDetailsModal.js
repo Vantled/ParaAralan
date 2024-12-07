@@ -2,7 +2,7 @@ import React from 'react';
 import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import confetti from 'canvas-confetti';
 
-function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isAdmin, handleEditSchool, showingDirections, setShowDeleteConfirm, isBookmarked, onToggleBookmark }) {
+function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isAdmin, handleEditSchool, showingDirections, setShowingDirections, setShowDeleteConfirm, isBookmarked, onToggleBookmark }) {
   const triggerConfetti = (buttonElement) => {
     const rect = buttonElement.getBoundingClientRect();
     const x = (rect.left + rect.right) / 2 / window.innerWidth;
@@ -133,7 +133,7 @@ function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isA
           {userLocation && (
             <button 
               className={`direction-button ${showingDirections ? 'active' : ''}`}
-              onClick={() => showDirections([school.position.lat, school.position.lng])}
+              onClick={() => showDirections([school.position.lat, school.position.lng], school)}
             >
               <i className="fas fa-directions"></i>
               {showingDirections ? 'Hide Directions' : 'Get Directions'}

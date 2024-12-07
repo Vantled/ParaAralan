@@ -6821,3 +6821,210 @@ body {
     }
   }
 
+  /* Directions Panel Styles */
+  .directions-panel {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  .directions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .directions-header h3 {
+    margin: 0;
+    color: #333;
+  }
+
+  .directions-content {
+    padding: 15px;
+  }
+
+  .route-points {
+    margin-bottom: 20px;
+  }
+
+  .start-point, .destination {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    gap: 10px;
+  }
+
+  .transport-modes {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding: 5px 0;
+  }
+
+  .mode-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-button.active {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    color: #2196f3;
+  }
+
+  .mode-icon {
+    font-size: 1.2em;
+    margin-bottom: 4px;
+  }
+
+  .route-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 6px;
+  }
+
+  .distance, .duration {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .landmarks {
+    margin-top: 20px;
+  }
+
+  .landmarks h4 {
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .landmarks ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .landmarks li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
+  }
+
+  .instruction-icon {
+    font-size: 1.2em;
+    min-width: 24px;
+  }
+
+  .instruction-text {
+    flex: 1;
+  }
+
+  .instruction-distance {
+    color: #666;
+    font-size: 0.9em;
+  }
+
+/* Directions Container Styles */
+.directions-container {
+  position: fixed;
+  left: 20px;
+  top: 90px;
+  z-index: 1000;
+  width: fit-content;
+  min-width: 380px;
+  max-width: 500px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 152, 219, 0.5) transparent;
+}
+
+/* Transport Modes Styles */
+.transport-modes {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.mode-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 80px;
+}
+
+.mode-button.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+.mode-icon {
+  font-size: 1.5em;
+  margin-bottom: 6px;
+}
+
+.mode-label {
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* Route Info Styles */
+.route-info {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.route-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .directions-container {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    min-width: unset;
+    max-width: calc(100vw - 20px);
+  }
+}

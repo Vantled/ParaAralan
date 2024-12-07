@@ -21,6 +21,7 @@ import BookmarksModal from './components/BookmarksModal';
 import BookmarkNotification from './components/BookmarkNotification';
 import AboutUsModal from './components/AboutUsModal';
 import HowItWorksTour from './components/HowItWorksTour';
+import DirectionsPanel from './components/DirectionsPanel';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -610,6 +611,7 @@ function App() {
   const [bookmarkNotification, setBookmarkNotification] = useState({ show: false, message: '', type: '' });
   const [showAboutUs, setShowAboutUs] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [destinationSchool, setDestinationSchool] = useState(null);
 
   useEffect(() => {
     // Fetch schools from Firebase
@@ -993,43 +995,62 @@ function App() {
     }
   };
 
-  const showDirections = (schoolPosition) => {
+  const showDirections = (schoolPosition, school) => {
     if (userLocation && mapRef.current) {
+      setSelectedSchool(null);
+      setShowingDirections(true);
+      setDestinationSchool(school); // Set the destination school
+
       // Remove existing route if any
       if (routingControl) {
-        routingControl.remove();
+        mapRef.current.removeControl(routingControl);
         setRoutingControl(null);
-        setShowingDirections(false);
-      } else {
-        try {
-          // Create new route
-          const control = L.Routing.control({
-            waypoints: [
-              L.latLng(userLocation[0], userLocation[1]),
-              L.latLng(schoolPosition[0], schoolPosition[1])
-            ],
-            router: L.Routing.osrmv1({
-              serviceUrl: 'https://router.project-osrm.org/route/v1'
-            }),
-            routeWhileDragging: false,
-            lineOptions: {
-              styles: [
-                { color: '#3498db', opacity: 0.8, weight: 4 }
-              ]
-            },
-            show: false,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            fitSelectedRoutes: true,
-            createMarker: function() { return null; }
-          });
+      }
 
-          control.addTo(mapRef.current);
-          setRoutingControl(control);
-          setShowingDirections(true);
-        } catch (error) {
-          console.error('Error showing directions:', error);
-        }
+      try {
+        // Create new route
+        const control = L.Routing.control({
+          waypoints: [
+            L.latLng(userLocation[0], userLocation[1]),
+            L.latLng(schoolPosition[0], schoolPosition[1])
+          ],
+          router: L.Routing.osrmv1({
+            serviceUrl: 'https://router.project-osrm.org/route/v1'
+          }),
+          routeWhileDragging: false,
+          lineOptions: {
+            styles: [
+              { color: '#3498db', opacity: 0.8, weight: 4 }
+            ]
+          },
+          show: false,
+          addWaypoints: false,
+          draggableWaypoints: false,
+          fitSelectedRoutes: true,
+          createMarker: function() { return null; }
+        });
+
+        control.addTo(mapRef.current);
+        setRoutingControl(control);
+        
+        // Get route data when route is calculated
+        control.on('routesfound', function(e) {
+          const routes = e.routes;
+          if (routes && routes[0]) {
+            const route = routes[0];
+            setRoutingControl(prev => ({
+              ...prev,
+              mode: 'driving',
+              distance: route.summary.totalDistance,
+              duration: route.summary.totalTime,
+              instructions: route.instructions || []
+            }));
+          }
+        });
+
+      } catch (error) {
+        console.error('Error showing directions:', error);
+        showNotification('Error showing directions. Please try again.', 'error');
       }
     }
   };
@@ -1350,11 +1371,54 @@ function App() {
             isAdmin={isAdmin}
             handleEditSchool={handleEditSchool}
             showingDirections={showingDirections}
+            setShowingDirections={setShowingDirections}
             setShowDeleteConfirm={setShowDeleteConfirm}
             isBookmarked={bookmarkedSchools.some(s => s.id === selectedSchool.id)}
             onToggleBookmark={handleToggleBookmark}
           />
         </div>
+      )}
+
+      {showingDirections && !selectedSchool && (
+        <DirectionsPanel
+          startPoint={{ lat: userLocation[0], lng: userLocation[1] }}
+          destination={destinationSchool}
+          route={routingControl}
+          isVisible={showingDirections}
+          onClose={() => {
+            if (routingControl) {
+              // First try to remove using the routing control's methods
+              if (routingControl.getPlan) {
+                routingControl.remove();
+              } else if (routingControl.remove) {
+                routingControl.remove();
+              } else {
+                // Remove all routing layers from the map
+                mapRef.current.eachLayer((layer) => {
+                  if (layer instanceof L.Routing.Control || 
+                      layer instanceof L.Polyline || 
+                      (layer.options && layer.options.className === 'leaflet-routing-container')) {
+                    mapRef.current.removeLayer(layer);
+                  }
+                });
+              }
+
+              // Also try to remove the routing container from DOM
+              const routingContainer = document.querySelector('.leaflet-routing-container');
+              if (routingContainer) {
+                routingContainer.remove();
+              }
+
+              // Clear the routing control state
+              setRoutingControl(null);
+            }
+            
+            // Clear destination and hide panel
+            setDestinationSchool(null);
+            setShowingDirections(false);
+          }}
+          setShowingDirections={setShowingDirections}
+        />
       )}
 
       {showBookmarksModal && (
