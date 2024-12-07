@@ -5289,21 +5289,6 @@ body {
     }
   }
 
-  /* School details container styles */
-  .school-details-container {
-    position: fixed;
-    left: 20px;
-    top: 90px; /* Adjust based on your header height + desired spacing */
-    z-index: 1000;
-    width: 400px;
-    max-width: calc(100vw - 40px);
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  }
-
   /* Adjust the school details modal when inside the container */
   .school-details-container .school-details-modal {
     position: relative;
@@ -5329,7 +5314,6 @@ body {
     }
   }
 
-  /* Enhanced School Details Container Styles */
   .school-details-container {
     position: fixed;
     left: 20px;
@@ -5338,7 +5322,7 @@ body {
     width: fit-content;
     min-width: 380px;
     max-width: 500px;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 160px);
     overflow-y: auto;
     overflow-x: hidden;
     background: white;
