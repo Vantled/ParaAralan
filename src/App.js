@@ -1339,7 +1339,9 @@ function App() {
 
       <HowItWorksTour 
         isVisible={showTour} 
-        onClose={() => setShowTour(false)} 
+        onClose={() => setShowTour(false)}
+        schools={schools}
+        setSelectedSchool={setSelectedSchool}
       />
     </div>
   );

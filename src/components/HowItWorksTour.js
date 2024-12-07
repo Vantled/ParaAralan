@@ -26,12 +26,12 @@ const steps = [
     target: '.school-details-container',
     title: 'School Information',
     content: 'View detailed information about schools, including programs, requirements, and directions.',
-    placement: 'left',
-    offset: { top: 0, left: 20 }
+    placement: 'right',
+    offset: { top: -100, left: 20 }
   }
 ];
 
-function HowItWorksTour({ onClose, isVisible }) {
+function HowItWorksTour({ onClose, isVisible,schools, setSelectedSchool }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [pointerPosition, setPointerPosition] = useState({ top: 0, left: 0 });
@@ -45,11 +45,29 @@ function HowItWorksTour({ onClose, isVisible }) {
 
   useEffect(() => {
     if (isVisible) {
+      const step = steps[currentStep];
+      if (currentStep === steps.length - 1) {
+        const lspuLB = schools.find(school => 
+          school.name.toLowerCase().includes('laguna state polytechnic university') && 
+          school.name.toLowerCase().includes('los banos')
+        );
+        if (lspuLB) {
+          setSelectedSchool(lspuLB);
+          setTimeout(positionTooltip, 100);
+          return;
+        }
+      }
       positionTooltip();
     }
-  }, [currentStep]);
+  }, [currentStep, isVisible, schools, setSelectedSchool]);
 
-  const positionTooltip = () => {
+  useEffect(() => {
+    return () => {
+      setSelectedSchool(null);
+    };
+  }, [setSelectedSchool]);
+
+ const positionTooltip = () => {
     const targetElement = document.querySelector(steps[currentStep].target);
     if (targetElement) {
       const rect = targetElement.getBoundingClientRect();
