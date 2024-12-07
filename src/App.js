@@ -19,6 +19,8 @@ import LoadingSpinner from './components/LoadingSpinner';
 import SchoolDetailsModal from './components/SchoolDetailsModal';
 import BookmarksModal from './components/BookmarksModal';
 import BookmarkNotification from './components/BookmarkNotification';
+import AboutUsModal from './components/AboutUsModal';
+import HowItWorksTour from './components/HowItWorksTour';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -456,7 +458,15 @@ function Map({ mapRef, ...props }) {
 }
 
 // Add this new component near the top of your file
-function HamburgerMenu({ user, handleLogout, setShowLoginModal, setShowRegisterModal, setShowBookmarksModal }) {
+function HamburgerMenu({ 
+  user, 
+  handleLogout, 
+  setShowLoginModal, 
+  setShowRegisterModal, 
+  setShowBookmarksModal,
+  setShowAboutUs,
+  setShowTour  // Add this prop
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -469,6 +479,8 @@ function HamburgerMenu({ user, handleLogout, setShowLoginModal, setShowRegisterM
     if (action === 'register') setShowRegisterModal(true);
     if (action === 'logout') handleLogout();
     if (action === 'bookmarks') setShowBookmarksModal(true);
+    if (action === 'about') setShowAboutUs(true);
+    if (action === 'howItWorks') setShowTour(true);
   };
 
   return (
@@ -560,6 +572,8 @@ function App() {
   const [bookmarkedSchools, setBookmarkedSchools] = useState([]);
   const [showBookmarksModal, setShowBookmarksModal] = useState(false);
   const [bookmarkNotification, setBookmarkNotification] = useState({ show: false, message: '', type: '' });
+  const [showAboutUs, setShowAboutUs] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
     // Fetch schools from Firebase
@@ -628,6 +642,14 @@ function App() {
     };
     loadBookmarks();
   }, [user]);
+
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenTour');
+    if (!hasSeenTour) {
+      setShowTour(true);
+      localStorage.setItem('hasSeenTour', 'true');
+    }
+  }, []);
 
   const handleMapClick = async (event) => {
     if (isAddingPin && isAdmin) {
@@ -1111,6 +1133,8 @@ function App() {
           setShowLoginModal={setShowLoginModal}
           setShowRegisterModal={setShowRegisterModal}
           setShowBookmarksModal={setShowBookmarksModal}
+          setShowAboutUs={setShowAboutUs}
+          setShowTour={setShowTour}
         />
       </div>
 
@@ -1308,6 +1332,15 @@ function App() {
           }}
         />
       )}
+
+      {showAboutUs && (
+        <AboutUsModal onClose={() => setShowAboutUs(false)} />
+      )}
+
+      <HowItWorksTour 
+        isVisible={showTour} 
+        onClose={() => setShowTour(false)} 
+      />
     </div>
   );
 }

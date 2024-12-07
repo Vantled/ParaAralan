@@ -1595,689 +1595,6 @@ body {
   animation: modalOut 0.3s ease-out forwards;
 }
 
-/* Add location button styles */
-.location-button {
-  position: relative;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(44, 62, 80, 0.1);
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #424242;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Quicksand', 'Segoe UI', sans-serif;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.location-button:hover:not(:disabled) {
-  background: linear-gradient(45deg, #2c3e50, #3498db);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-.location-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.location-button.loading {
-  cursor: wait;
-}
-
-.location-button .button-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(52, 152, 219, 0.1);
-  border-top-color: #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-right: 4px;
-}
-
-.location-button.error {
-  background: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
-  border: 1px solid rgba(231, 76, 60, 0.2);
-}
-
-.location-button.error:hover {
-  background: linear-gradient(45deg, #e74c3c, #c0392b);
-  color: white;
-}
-
-/* Location error tooltip */
-.location-error-tooltip {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 0.8rem 1.2rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  color: #e74c3c;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
-  border: 1px solid rgba(231, 76, 60, 0.2);
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
-  .location-button {
-    padding: 0.7rem 1.2rem;
-    font-size: 0.9rem;
-  }
-
-  .location-error-tooltip {
-    width: 200px;
-    white-space: normal;
-    text-align: center;
-  }
-}
-
-.button-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(52, 152, 219, 0.1);
-  border-top-color: #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 10px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
-  .location-button {
-    padding: 0.7rem 1rem;
-    font-size: 0.85rem;
-  }
-
-  .location-error-tooltip {
-    width: 200px;
-    white-space: normal;
-    text-align: center;
-  }
-}
-
-.user-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-controls button {
-  background: rgba(128, 128, 128, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.6rem 1.5rem;
-  font-size: 0.9rem;
-  color: #424242;
-  font-weight: 500;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  font-family: 'Quicksand', 'Segoe UI', sans-serif;
-  letter-spacing: 0.5px;
-}
-
-.user-controls button:hover {
-  background: linear-gradient(45deg, #2c3e50, #3498db);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-.user-controls h2 {
-  margin: 0;
-  font-size: 1rem;
-  color: #2c3e50;
-  font-weight: 500;
-  font-family: 'Quicksand', 'Segoe UI', sans-serif;
-}
-
-.map-container {
-  width: 100%;
-  height: calc(100vh - 70px);
-  margin-top: 70px;
-}
-
-.static-map {
-  width: 100%;
-  height: 100%;
-  background-color: #e5e7eb;
-  position: relative;
-  cursor: pointer;
-}
-
-.map-marker {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
-  font-size: 24px;
-  transition: transform 0.2s;
-}
-
-.map-marker:hover {
-  transform: translate(-50%, -50%) scale(1.2);
-}
-
-.floating-info-window {
-  position: fixed;
-  right: 20px;
-  top: 90px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-width: 300px;
-  z-index: 1000;
-}
-
-.close-info {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.close-info:hover {
-  color: #333;
-}
-
-.login-form input::placeholder,
-.register-form input::placeholder {
-  color: #95a5a6;
-  font-family: 'Quicksand', sans-serif;
-}
-
-/* Add these styles for Leaflet */
-.leaflet-container {
-  width: 100vw;
-  height: calc(100vh - 70px);
-  margin-top: 70px;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: auto !important;
-}
-
-.leaflet-popup-content {
-  margin: 0;
-  padding: 15px 15px 15px 15px;
-  text-align: center;
-  width: 300px !important;
-  position: relative;
-}
-
-.leaflet-popup-content-wrapper {
-  padding: 0;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.leaflet-popup-content h3 {
-  margin-top: 0;
-  color: #2c3e50;
-  font-family: 'Quicksand', sans-serif;
-}
-
-/* Update filter controls base styles */
-.filter-controls {
-  position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  padding: 12px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  width: auto;
-  min-width: 300px;
-}
-
-/* Update styles for when school popup is active - slide to right */
-.App:has(.school-popup-modal.active) .filter-controls {
-  left: auto;
-  right: 20px;
-  transform: translateX(0);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);  /* This is the sliding animation */
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
-  .filter-controls {
-    width: 90%;
-    padding: 10px;
-    min-width: auto;
-  }
-
-  .App:has(.school-popup-modal.active) .filter-controls {
-    right: 10px;
-    top: 140px;
-    transform: translateX(0);
-  }
-}
-
-/* Tablet adjustments */
-@media screen and (min-width: 769px) and (max-width: 1024px) {
-  .App:has(.school-popup-modal.active) .filter-controls {
-    right: 30px;
-    transform: translateX(0);
-  }
-}
-
-/* Add styles for when school popup is active */
-.App:has(.school-popup-modal.active) .filter-controls .search-container {
-  width: 100%;
-}
-
-.App:has(.school-popup-modal.active) .filter-controls .filter-dropdown {
-  width: 100%;
-}
-
-.App:has(.school-popup-modal.active) .filter-controls .add-pin-button {
-  width: 100%;
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
-  .App:has(.school-popup-modal.active) .filter-controls {
-    top: 140px;
-    right: 10px;
-    width: 200px;
-  }
-
-  .filter-controls {
-    width: 90%;
-    padding: 10px;
-    min-width: auto;
-  }
-}
-
-/* Tablet adjustments */
-@media screen and (min-width: 769px) and (max-width: 1024px) {
-  .App:has(.school-popup-modal.active) .filter-controls {
-    right: 30px;
-    width: 220px;
-  }
-}
-
-/* Update search results positioning when popup is active */
-.App:has(.school-popup-modal.active) .filter-controls .search-results {
-  width: 100%;
-  left: 0;
-}
-
-/* Add transition for smooth animation */
-.filter-controls,
-.filter-controls * {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Ensure dropdown menus appear correctly when filter controls are repositioned */
-.App:has(.school-popup-modal.active) .filter-controls .dropdown-content {
-  width: 100%;
-  left: 0;
-}
-
-.filter-dropdown {
-  position: relative;
-  z-index: 1001; /* Ensure dropdowns appear above other elements */
-}
-
-.filter-dropdown button {
-  padding: 0.7rem 1rem;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: 'Quicksand', sans-serif;
-  font-size: 0.9rem;
-  color: #495057;
-  min-width: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.filter-dropdown button:hover {
-  background: white;
-  border-color: #3498db;
-}
-
-/* Dropdown animation styles */
-.dropdown-content {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  min-width: 100%;
-  z-index: 1002;
-  border: 1px solid #e9ecef;
-  
-  /* Animation properties */
-  transform-origin: top;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px) scaleY(0.95);
-  transition: all 0.2s cubic-bezier(0.5, 0, 0, 1.25);
-  pointer-events: none;
-}
-
-.dropdown-content.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0) scaleY(1);
-  pointer-events: auto;
-}
-
-/* Animate dropdown items */
-.dropdown-content div {
-  padding: 0.7rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #495057;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.2s ease;
-  transition-delay: calc(var(--item-index) * 0.05s);
-}
-
-.dropdown-content.show div {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.dropdown-content div:hover {
-  background: #f8f9fa;
-  color: #3498db;
-}
-
-.search-button {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 0.5rem 1rem;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.search-button:hover {
-  background: #2980b9;
-}
-
-.school-logo {
-  width: 70px;
-  height: 70px;
-  object-fit: contain;
-  margin: 0 auto 0.5rem;
-  display: block;
-}
-
-.website-link,
-.directions-link {
-  display: block;
-  margin: 0.5rem 0;
-  padding: 0.8rem 1.5rem;
-  background: rgba(128, 128, 128, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #424242;
-  text-decoration: none;
-  border-radius: 25px;
-  text-align: center;
-  font-family: 'Quicksand', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  width: 100%;
-  box-sizing: border-box;
-  cursor: pointer;
-}
-
-.website-link:hover,
-.directions-link:hover {
-  background: linear-gradient(45deg, #2c3e50, #3498db);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-.confirmation-buttons {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.confirmation-buttons button {
-  background: rgba(128, 128, 128, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  color: #424242;
-  font-weight: 500;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  font-family: 'Quicksand', 'Segoe UI', sans-serif;
-  letter-spacing: 0.5px;
-}
-
-.confirmation-buttons button:hover {
-  background: linear-gradient(45deg, #2c3e50, #3498db);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-.map-view-control {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-  width: fit-content;
-  background: white;
-  padding: 5px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.map-view-control select {
-  width: fit-content;
-  min-width: 120px;
-  padding: 8px 30px 8px 12px;
-  border: 1px solid rgba(44, 62, 80, 0.1);
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-family: 'Quicksand', sans-serif;
-  background-color: white;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 16px;
-}
-
-.map-view-control select:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
-.map-view-control select:hover {
-  background-color: rgba(255, 255, 255, 1);
-  border-color: #3498db;
-}
-
-/* Add notification styles */
-.notification {
-  position: fixed;
-  top: 90px;
-  right: 20px;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  background: white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-family: 'Quicksand', sans-serif;
-  animation: slideIn 0.3s ease-out;
-  max-width: 400px;
-}
-
-.notification.success {
-  background: linear-gradient(45deg, #2ecc71, #27ae60);
-  color: white;
-}
-
-.notification.error {
-  background: linear-gradient(45deg, #e74c3c, #c0392b);
-  color: white;
-}
-
-.notification.info {
-  background: linear-gradient(45deg, #3498db, #2980b9);
-  color: white;
-  font-weight: 500;
-}
-
-/* Add a pointer icon to the info notification */
-.notification.info::before {
-  content: "👆";
-  margin-right: 8px;
-  font-size: 1.2em;
-}
-
-.notification-close {
-  background: none;
-  border: none;
-  color: currentColor;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 1rem;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* Add keyframe animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes modalIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes modalOut {
-  from {
-    transform: scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-/* Add these classes for closing animations */
-.modal-backdrop.closing {
-  animation: fadeOut 0.3s ease-out forwards;
-}
-
-.modal-content.closing {
-  animation: modalOut 0.3s ease-out forwards;
-}
-
 /* Add these styles for the hamburger menu */
 .hamburger-menu {
   position: relative;
@@ -6905,5 +6222,357 @@ body {
     height: 12px;
     border: 2px solid rgba(52, 152, 219, 0.1);
     border-top-color: #3498db;
+  }
+
+  /* About Us Modal Styles */
+  .about-us-modal {
+    max-width: 800px !important;
+    width: 90% !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .about-us-content {
+    padding: 2rem;
+  }
+
+  .about-us-content h2 {
+    color: #2c3e50;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-family: 'Quicksand', sans-serif;
+  }
+
+  .about-us-content section {
+    margin-bottom: 2.5rem;
+  }
+
+  .about-us-content h3 {
+    color: #3498db;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Quicksand', sans-serif;
+  }
+
+  .about-us-content p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .features-section ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;  /* Add this line */
+    margin-left: 1.5rem;  /* Add this line */
+  }
+
+  .features-section li {
+    padding: 0.5rem 0;
+    color: #666;
+    position: relative;
+    padding-left: 1.5rem;
+    text-align: left;  /* Add this line */
+  }
+
+  .features-section li:before {
+    content: "•";
+    color: #3498db;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+  }
+
+  .team-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .team-member {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .team-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .team-member h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-family: 'Quicksand', sans-serif;
+  }
+
+  .team-member p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .contact-info {
+    background: rgba(52, 152, 219, 0.1);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+  }
+
+  .contact-info p {
+    margin: 0.5rem 0;
+    color: #666;
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 768px) {
+    .about-us-modal {
+      width: 95% !important;
+    }
+
+    .about-us-content {
+      padding: 1.5rem;
+    }
+
+    .team-members {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Tour Styles */
+  .tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+
+  .tour-tooltip {
+    position: fixed;
+    width: 300px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 2001; /* Increased z-index to appear above map */
+    animation: tooltip-fade-in 0.3s ease;
+  }
+
+  .tour-tooltip-content {
+    padding: 20px;
+  }
+
+  .tour-tooltip h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+  }
+
+  .tour-tooltip p {
+    margin: 0 0 20px 0;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .tour-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .tour-progress {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tour-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: background 0.3s ease;
+  }
+
+  .tour-dot.active {
+    background: #3498db;
+  }
+
+  .tour-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .tour-skip-btn,
+  .tour-next-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .tour-skip-btn {
+    background: transparent;
+    color: #666;
+  }
+
+  .tour-skip-btn:hover {
+    background: #f5f5f5;
+  }
+
+  .tour-next-btn {
+    background: #3498db;
+    color: white;
+  }
+
+  .tour-next-btn:hover {
+    background: #2980b9;
+  }
+
+  @keyframes tooltip-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000; /* Increased z-index to appear above map */
+  }
+
+  /* Add pointer styles */
+  .tour-pointer {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    background: #3498db;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2002;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
+    animation: pulse 2s infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+    }
+  }
+
+  /* Update overlay to not block the pointer */
+  .tour-overlay {
+    pointer-events: auto;
+  }
+
+  .tour-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+
+  /* Update the touroverlay to be transparent */
+  .tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 2000;
+  }
+
+  /* Remove the overlay's before pseudo-element that was adding the black background */
+  .tour-overlay::before {
+    display: none;
+  }
+
+  /* Update the pointer styles to be an unfilled red circle */
+  .tour-pointer {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: 3px solid #e74c3c;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2002;
+    animation: pulse-red 2s infinite;
+    pointer-events: none;
+  }
+
+  /* Update the touroverlay to be transparent */
+  .tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 2000;
+  }
+
+  /* Remove the overlay's before pseudo-element that was adding the black background */
+  .tour-overlay::before {
+    display: none;
+  }
+
+  /* Update the pointer styles to be an unfilled red circle */
+  .tour-pointer {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: 3px solid #e74c3c;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2002;
+    animation: pulse-red 2s infinite;
+    pointer-events: none;
+  }
+
+  /* Update pulse animation for red circle */
+  @keyframes pulse-red {
+    0% {
+      box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+      transform: translate(-50%, -50%) scale(1);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+      transform: translate(-50%, -50%) scale(1);
+    }
   }
 
