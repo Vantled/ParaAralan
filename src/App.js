@@ -535,6 +535,42 @@ function HamburgerMenu({
   );
 }
 
+// Add this new Footer component near the top of your file
+function Footer() {
+  return (
+    <div className="footer-container">
+      <div className="footer-content">
+        <div className="footer-section footer-logo">
+          
+          <h3>ParaAralan</h3>
+        </div>
+        
+        <div className="footer-section footer-links">
+          <a href="#about">About Us</a>
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#terms">Terms of Service</a>
+          <a href="#contact">Contact Us</a>
+        </div>
+        
+        <div className="footer-section footer-social">
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+            <i className="fab fa-facebook"></i>
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+            <i className="fab fa-twitter"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+            <i className="fab fa-instagram"></i>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+            <i className="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [routingControl, setRoutingControl] = useState(null);
   const [showingDirections, setShowingDirections] = useState(false);
@@ -1341,6 +1377,8 @@ function App() {
         isVisible={showTour} 
         onClose={() => setShowTour(false)} 
       />
+      
+      <Footer />
     </div>
   );
 }
