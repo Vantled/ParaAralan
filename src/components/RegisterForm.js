@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, getAuth, fetchSignInMethodsForEmail } from 'firebase/auth';
+import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import emailjs from '@emailjs/browser';
 
 function RegisterForm({ setUser, setUserType, onClose, showNotification, setShowLoginModal }) {
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   
-  // Basic Account Info (Step 1)
+  // Email and OTP states
   const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  
+  // Password states
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  // Personal Information (Step 2)
+  // Other form states remain the same
   const [personalInfo, setPersonalInfo] = useState({
     firstName: '',
     middleName: '',
@@ -28,7 +37,6 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
     phone: ''
   });
 
-  // Educational Background (Step 3)
   const [educationInfo, setEducationInfo] = useState({
     currentSchool: '',
     gradeLevel: '',
@@ -39,7 +47,6 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
     schoolType: ''
   });
 
-  // Optional Information (Step 4)
   const [optionalInfo, setOptionalInfo] = useState({
     guardianName: '',
     guardianContact: '',
@@ -48,8 +55,142 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
     communicationPreference: []
   });
 
-  // Add loading states
-  const [isLoading, setIsLoading] = useState(false);
+  // Add new state for email validation
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(false);
+
+  // Function to generate OTP
+  const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  };
+
+  // Function to check if email exists
+  const checkEmailExists = async (email) => {
+    const auth = getAuth();
+    const db = getFirestore();
+    console.log('Checking email:', email);
+    
+    try {
+      // Check Firebase Authentication
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      console.log('Auth sign in methods:', signInMethods);
+      const existsInAuth = signInMethods.length > 0;
+      console.log('Exists in Auth:', existsInAuth);
+
+      // Check Firestore Database
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      const existsInFirestore = !querySnapshot.empty;
+      console.log('Exists in Firestore:', existsInFirestore);
+
+      // Email exists if it's found in either Auth or Firestore
+      const emailExists = existsInAuth || existsInFirestore;
+      console.log('Final email exists check:', emailExists);
+
+      return emailExists;
+
+    } catch (error) {
+      console.error("Error checking email:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+      return false;
+    }
+  };
+
+  // Function to validate email format
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  // Function to handle email input with existence check
+  const handleEmailChange = async (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    setIsEmailValid(false);
+    setError(null);
+
+    // Clear previous states when email changes
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtp('');
+
+    if (!isValidEmail(newEmail)) {
+      return;
+    }
+
+    setIsCheckingEmail(true);
+    try {
+      const exists = await checkEmailExists(newEmail);
+      if (exists) {
+        setError('This email is already registered. Please login instead.');
+      } else {
+        setIsEmailValid(true);
+      }
+    } catch (error) {
+      console.error("Error checking email:", error);
+      setError('Error checking email availability');
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  };
+
+  // Updated sendOTP function with email existence check
+  const sendOTP = async () => {
+    setIsVerifying(true);
+    setError(null);
+
+    if (!email || !isValidEmail(email)) {
+      setError("Please enter a valid email address");
+      setIsVerifying(false);
+      return;
+    }
+
+    try {
+      // Check if email exists before sending OTP
+      const exists = await checkEmailExists(email);
+      
+      if (exists) {
+        setError('This email is already registered. Please login instead.');
+        setIsVerifying(false);
+        return;
+      }
+
+      // Only proceed with OTP if email doesn't exist
+      const newOtp = generateOTP();
+      setGeneratedOtp(newOtp);
+
+      const templateParams = {
+        to_email: email,
+        otp: newOtp,
+      };
+
+      await emailjs.send(
+        'service_7damv5c',
+        'template_mb7uu6z',
+        templateParams,
+        'vJVkTjl2-yufZAdOY'
+      );
+
+      setIsOtpSent(true);
+      showNotification('OTP sent to your email!', 'success');
+    } catch (error) {
+      console.error("Error:", error);
+      showNotification('Failed to send OTP. Please try again.', 'error');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  // Function to verify OTP
+  const verifyOTP = () => {
+    if (otp === generatedOtp) {
+      setIsOtpVerified(true);
+      showNotification('Email verified successfully!', 'success');
+    } else {
+      showNotification('Invalid OTP. Please try again.', 'error');
+    }
+  };
 
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target;
@@ -90,8 +231,8 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
     setError(null);
     switch (step) {
       case 1:
-        if (!email || !password || !confirmPassword) {
-          setError("Please fill in all required fields");
+        if (!email || !isOtpVerified || !password || !confirmPassword) {
+          setError("Please complete email verification and password fields");
           return false;
         }
         if (password !== confirmPassword) {
@@ -177,27 +318,80 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
         return (
           <div className="form-step">
             <h3>Create Your Account</h3>
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+            <div className="form-group">
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={handleEmailChange}
+                disabled={isOtpVerified}
+                required
+              />
+              {isCheckingEmail && (
+                <div className="email-checking">
+                  <span className="button-spinner"></span>
+                  Checking email...
+                </div>
+              )}
+              {!isOtpVerified && isEmailValid && (
+                <button
+                  type="button"
+                  onClick={sendOTP}
+                  disabled={isVerifying || !email || isOtpSent || !isEmailValid}
+                  className="send-otp-button"
+                >
+                  {isVerifying ? (
+                    <>
+                      <span className="button-spinner"></span>
+                      Sending OTP...
+                    </>
+                  ) : isOtpSent ? (
+                    'OTP Sent'
+                  ) : (
+                    'Send OTP'
+                  )}
+                </button>
+              )}
+            </div>
+
+            {isOtpSent && !isOtpVerified && (
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Enter OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={verifyOTP}
+                  className="verify-otp-button"
+                >
+                  Verify OTP
+                </button>
+              </div>
+            )}
+
+            {isOtpVerified && (
+              <>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </>
+            )}
           </div>
         );
 
