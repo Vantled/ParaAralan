@@ -26,28 +26,70 @@ const steps = [
     target: '.school-details-container',
     title: 'School Information',
     content: 'View detailed information about schools, including programs, requirements, and directions.',
-    placement: 'left',
-    offset: { top: 0, left: 20 }
+    placement: 'right',
+    offset: { top: 0, left: 20 },
+    beforeShow: async (setSelectedSchool, schools, currentStep) => {
+      if (currentStep === steps.length - 1) {
+        const lspuLB = schools.find(school => 
+          school.name.includes("Laguna State Polytechnic University")
+        );
+        
+        if (lspuLB) {
+          setSelectedSchool(lspuLB);
+        }
+      }
+    },
+    onHide: (setSelectedSchool) => {
+      setSelectedSchool(null);
+    }
   }
 ];
 
-function HowItWorksTour({ onClose, isVisible }) {
+function HowItWorksTour({ onClose, isVisible, setSelectedSchool, schools }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [pointerPosition, setPointerPosition] = useState({ top: 0, left: 0 });
 
-  useEffect(() => {
-    if (isVisible) {
-      setCurrentStep(0);
-      positionTooltip();
+  // Reset function
+  const resetTour = () => {
+    // Always clear selected school when resetting
+    setSelectedSchool(null);
+    
+    // Then handle current step cleanup
+    const currentStepData = steps[currentStep];
+    if (currentStepData.onHide) {
+      currentStepData.onHide(setSelectedSchool);
     }
-  }, [isVisible]);
+    
+    setCurrentStep(0);
+    onClose();
+  };
 
   useEffect(() => {
     if (isVisible) {
+      // Initialize tour when it becomes visible
+      setCurrentStep(0);
       positionTooltip();
+    } else {
+      // Clean up when tour becomes invisible
+      setSelectedSchool(null);
     }
-  }, [currentStep]);
+  }, [isVisible, setSelectedSchool]);
+
+  useEffect(() => {
+    if (isVisible) {
+      const currentStepData = steps[currentStep];
+      // Only execute beforeShow for the last step
+      if (currentStepData.beforeShow && currentStep === steps.length - 1) {
+        currentStepData.beforeShow(setSelectedSchool, schools, currentStep);
+      } else {
+        // Clear selected school for all other steps
+        setSelectedSchool(null);
+      }
+      
+      setTimeout(positionTooltip, 50);
+    }
+  }, [currentStep, isVisible, schools]);
 
   const positionTooltip = () => {
     const targetElement = document.querySelector(steps[currentStep].target);
@@ -104,6 +146,11 @@ function HowItWorksTour({ onClose, isVisible }) {
   };
 
   const handleNext = () => {
+    const currentStepData = steps[currentStep];
+    if (currentStepData.onHide) {
+      currentStepData.onHide(setSelectedSchool);
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -115,7 +162,7 @@ function HowItWorksTour({ onClose, isVisible }) {
 
   return (
     <>
-      <div className="tour-overlay" onClick={() => onClose()} />
+      <div className="tour-overlay" onClick={resetTour} />
       <div 
         className="tour-pointer"
         style={{
@@ -130,7 +177,7 @@ function HowItWorksTour({ onClose, isVisible }) {
           left: `${position.left}px`
         }}
       >
-        <div className="tour-tooltip-content">
+        <div className="tour-tooltip-content" onClick={e => e.stopPropagation()}>
           <h3>{steps[currentStep].title}</h3>
           <p>{steps[currentStep].content}</p>
           
@@ -145,7 +192,7 @@ function HowItWorksTour({ onClose, isVisible }) {
             </div>
             
             <div className="tour-buttons">
-              <button onClick={onClose} className="tour-skip-btn">
+              <button onClick={resetTour} className="tour-skip-btn">
                 Skip
               </button>
               <button onClick={handleNext} className="tour-next-btn">

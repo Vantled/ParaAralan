@@ -1376,6 +1376,8 @@ function App() {
       <HowItWorksTour 
         isVisible={showTour} 
         onClose={() => setShowTour(false)} 
+        setSelectedSchool={setSelectedSchool}
+        schools={schools}
       />
       
       <Footer />
