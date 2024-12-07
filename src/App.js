@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
@@ -17,6 +17,8 @@ import FilterControls from './components/FilterControls';
 import SchoolEditForm from './components/SchoolEditForm';
 import LoadingSpinner from './components/LoadingSpinner';
 import SchoolDetailsModal from './components/SchoolDetailsModal';
+import BookmarksModal from './components/BookmarksModal';
+import BookmarkNotification from './components/BookmarkNotification';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -327,17 +329,26 @@ function MapContent({
         </Marker>
       )}
       {schools.map((school) => (
-        <Marker
-          key={school.id}
-          position={[school.position.lat, school.position.lng]}
-          icon={customPin}
-          eventHandlers={{
-            click: () => setSelectedSchool(school)
-          }}
-          data-school-id={school.id}
-        >
-          <Tooltip>{school.name}</Tooltip>
-        </Marker>
+        <div key={school.id}>
+          <Marker
+            position={[school.position.lat, school.position.lng]}
+            icon={customPin}
+            eventHandlers={{
+              click: () => setSelectedSchool(school)
+            }}
+            data-school-id={school.id}
+          >
+            <Tooltip 
+              permanent={true} 
+              direction="top" 
+              offset={[0, -30]}
+              className="school-pin-label"
+              opacity={1}
+            >
+              {school.name}
+            </Tooltip>
+          </Marker>
+        </div>
       ))}
     </>
   );
@@ -445,7 +456,7 @@ function Map({ mapRef, ...props }) {
 }
 
 // Add this new component near the top of your file
-function HamburgerMenu({ user, handleLogout, setShowLoginModal, setShowRegisterModal }) {
+function HamburgerMenu({ user, handleLogout, setShowLoginModal, setShowRegisterModal, setShowBookmarksModal }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -457,6 +468,7 @@ function HamburgerMenu({ user, handleLogout, setShowLoginModal, setShowRegisterM
     if (action === 'login') setShowLoginModal(true);
     if (action === 'register') setShowRegisterModal(true);
     if (action === 'logout') handleLogout();
+    if (action === 'bookmarks') setShowBookmarksModal(true);
   };
 
   return (
@@ -543,6 +555,11 @@ function App() {
   const [schoolToEdit, setSchoolToEdit] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [bookmarkedSchools, setBookmarkedSchools] = useState([]);
+  const [showBookmarksModal, setShowBookmarksModal] = useState(false);
+  const [bookmarkNotification, setBookmarkNotification] = useState({ show: false, message: '', type: '' });
 
   useEffect(() => {
     // Fetch schools from Firebase
@@ -567,35 +584,50 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setUser(user);
-        // Check admin status
-        checkAdminStatus(user);
-        
-        // Fetch user data from Firestore
-        const db = getFirestore();
-        try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUserName(userData.firstName || user.email);
-            setUserType(userData.userType);
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-          setUserName(user.email);
-        }
-      } else {
-        setUser(null);
-        setUserName('');
-        setUserType(null);
-        setIsAdmin(false);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser && initialLoad) {
+        // If no user is logged in, show welcome modal
+        setShowWelcomeModal(true);
+        // Hide all other modals
+        setShowLoginModal(false);
+        setShowRegisterModal(false);
+        setShowSchoolForm(false);
+        setShowEditForm(false);
+        setShowDeleteConfirm(false);
+        // Clear selected school if any
+        setSelectedSchool(null);
       }
+      setUser(currentUser);
+      if (currentUser) {
+        checkAdminStatus(currentUser);
+      }
+      setInitialLoad(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [initialLoad]);
+
+  useEffect(() => {
+    const loadBookmarks = async () => {
+      if (user) {
+        const db = getFirestore();
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.data();
+        if (userData?.bookmarks) {
+          // Fetch full school data for each bookmarked school
+          const bookmarkedSchoolsData = await Promise.all(
+            userData.bookmarks.map(async (schoolId) => {
+              const schoolDoc = await getDoc(doc(db, 'schools', schoolId));
+              return { id: schoolDoc.id, ...schoolDoc.data() };
+            })
+          );
+          setBookmarkedSchools(bookmarkedSchoolsData);
+        }
+      }
+    };
+    loadBookmarks();
+  }, [user]);
 
   const handleMapClick = async (event) => {
     if (isAddingPin && isAdmin) {
@@ -944,6 +976,128 @@ function App() {
     }
   };
 
+  const handleToggleBookmark = async (school) => {
+    if (!user) {
+      showNotification('Please log in to bookmark schools', 'info');
+      return;
+    }
+
+    const db = getFirestore();
+    const userRef = doc(db, 'users', user.uid);
+    const isCurrentlyBookmarked = bookmarkedSchools.some(s => s.id === school.id);
+
+    try {
+      if (isCurrentlyBookmarked) {
+        await updateDoc(userRef, {
+          bookmarks: arrayRemove(school.id)
+        });
+        setBookmarkedSchools(prev => prev.filter(s => s.id !== school.id));
+        setBookmarkNotification({
+          show: true,
+          message: `${school.name} removed from bookmarks`,
+          type: 'remove'
+        });
+      } else {
+        await updateDoc(userRef, {
+          bookmarks: arrayUnion(school.id)
+        });
+        setBookmarkedSchools(prev => [...prev, school]);
+        setBookmarkNotification({
+          show: true,
+          message: `${school.name} added to bookmarks`,
+          type: 'add'
+        });
+      }
+      
+      setTimeout(() => {
+        setBookmarkNotification({ show: false, message: '', type: '' });
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating bookmarks:', error);
+      showNotification('Error updating bookmarks', 'error');
+    }
+  };
+
+  // Add this to protect the main content
+  if (!user && showWelcomeModal) {
+    return (
+      <div className="App">
+        <div className="header">
+          <div className="header-left">
+            <img src={logo} alt="ParaAralan Logo" className="header-logo" />
+            <h1 className="app-title">Welcome to ParaAralan!</h1>
+          </div>
+        </div>
+
+        {/* Show welcome modal */}
+        <div className="modal-backdrop">
+          <div className="welcome-modal">
+            <h2>Welcome to ParaAralan</h2>
+            <p className="subtitle">Your School Mapping Application</p>
+            
+            <p className="description">
+              Discover and explore schools in your area with ease. To access all features, please log in or create an account.
+            </p>
+
+            <div className="welcome-buttons">
+              <button 
+                className="login-btn"
+                onClick={() => setShowLoginModal(true)}
+              >
+                Log In
+              </button>
+              <button 
+                className="register-btn"
+                onClick={() => setShowRegisterModal(true)}
+              >
+                Register
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Login Modal */}
+        {showLoginModal && (
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <LoginForm 
+                setUser={setUser} 
+                setUserType={setUserType}
+                onClose={() => setShowLoginModal(false)}
+                showNotification={showNotification}
+                setShowRegisterModal={setShowRegisterModal}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Register Modal */}
+        {showRegisterModal && (
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <RegisterForm 
+                setUser={setUser} 
+                setUserType={setUserType}
+                onClose={() => setShowRegisterModal(false)}
+                showNotification={showNotification}
+                setShowLoginModal={setShowLoginModal}
+              />
+            </div>
+          </div>
+        )}
+
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Rest of your existing return statement for authenticated users
   return (
     <div className="App">
       <div className="header">
@@ -951,16 +1105,12 @@ function App() {
           <img src={logo} alt="ParaAralan Logo" className="header-logo" />
           <h1 className="app-title">Welcome to ParaAralan!</h1>
         </div>
-        {user && (
-          <div className="user-welcome">
-            <h2>Welcome, {userName}</h2>
-          </div>
-        )}
         <HamburgerMenu
           user={user}
           handleLogout={handleLogout}
           setShowLoginModal={setShowLoginModal}
           setShowRegisterModal={setShowRegisterModal}
+          setShowBookmarksModal={setShowBookmarksModal}
         />
       </div>
 
@@ -972,6 +1122,12 @@ function App() {
         isAdmin={isAdmin}
         onAddPin={handleAddPinClick}  // Changed from the inline function
         isAddingPin={isAddingPin}
+      />
+
+      <BookmarkNotification 
+        message={bookmarkNotification.message}
+        isVisible={bookmarkNotification.show}
+        type={bookmarkNotification.type}
       />
 
       {showDeleteConfirm && (
@@ -1009,6 +1165,7 @@ function App() {
               setUserType={setUserType}
               onClose={handleCloseLogin}
               showNotification={showNotification}
+              setShowRegisterModal={setShowRegisterModal}
             />
           </div>
         </div>
@@ -1025,6 +1182,7 @@ function App() {
               setUserType={setUserType}
               onClose={handleCloseRegister}
               showNotification={showNotification}
+              setShowLoginModal={setShowLoginModal}
             />
           </div>
         </div>
@@ -1133,8 +1291,22 @@ function App() {
             handleEditSchool={handleEditSchool}
             showingDirections={showingDirections}
             setShowDeleteConfirm={setShowDeleteConfirm}
+            isBookmarked={bookmarkedSchools.some(s => s.id === selectedSchool.id)}
+            onToggleBookmark={handleToggleBookmark}
           />
         </div>
+      )}
+
+      {showBookmarksModal && (
+        <BookmarksModal
+          bookmarkedSchools={bookmarkedSchools}
+          user={user}
+          onClose={() => setShowBookmarksModal(false)}
+          onSchoolSelect={(school) => {
+            setSelectedSchool(school);
+            setShowBookmarksModal(false);
+          }}
+        />
       )}
     </div>
   );
