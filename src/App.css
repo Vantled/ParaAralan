@@ -3965,9 +3965,6 @@ body {
       font-family: 'Quicksand', sans-serif;
       min-height: 100px;
       resize: vertical;
-      white-space: pre-wrap; /* Add this to preserve line breaks */
-      overflow-wrap: break-word; /* Add this to handle long words */
-      line-height: 1.5; /* Add this for better readability */
     }
 
     .program-entry textarea,
@@ -7419,3 +7416,826 @@ body {
   font-size: 0.9rem;
   font-weight: 500;
 }
+
+/* User Profile Modal Styles */
+.user-profile-modal {
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+}
+
+.profile-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+}
+
+.profile-header .edit-button {
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #3498db;
+  border-radius: 6px;
+  background: none;
+  color: #3498db;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.profile-header .edit-button:hover {
+  background: #3498db;
+  color: white;
+}
+
+.profile-header .edit-button.active {
+  background: #e74c3c;
+  border-color: #e74c3c;
+  color: white;
+}
+
+.profile-image-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.profile-image-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-upload-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.image-upload-label:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.form-section h3 {
+  margin: 0 0 1.5rem 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.form-group {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.form-group input:disabled,
+.form-group textarea:disabled {
+  background: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.form-group .disabled-input {
+  background: #f1f3f5;
+  color: #7f8c8d;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.save-button {
+  padding: 0.8rem 2rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-button:hover {
+  background: #2980b9;
+}
+
+.save-button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* ... existing styles ... */
+
+/* User Profile Modal Styles */
+.user-profile-modal {
+  max-width: 400px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.user-profile-modal .profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.user-profile-modal .profile-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.user-profile-modal .close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  color: #666;
+}
+
+.user-profile-modal .profile-content {
+  padding: 20px;
+}
+
+.user-profile-modal .profile-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.user-profile-modal .profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.user-profile-modal .profile-email {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+.user-profile-modal .form-group {
+  margin-bottom: 16px;
+}
+
+.user-profile-modal .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.user-profile-modal .form-group input,
+.user-profile-modal .form-group textarea {
+  width: 90%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.user-profile-modal .form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.user-profile-modal .disabled-input {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.user-profile-modal .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.user-profile-modal .cancel-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #f5f5f5;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.user-profile-modal .save-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #000;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.user-profile-modal .save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ... existing styles ... */
+
+/* User Profile Modal Styles */
+.user-profile-modal {
+  max-width: 600px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  background: white;
+  position: relative;
+}
+
+.user-profile-modal .profile-content {
+  padding: 24px;
+  padding-bottom: 80px; /* Make room for the fixed buttons */
+  max-height: calc(90vh - 70px);
+  overflow-y: auto;
+}
+
+.user-profile-modal .form-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+.user-profile-modal .cancel-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-profile-modal .save-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #000;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-profile-modal .save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ... rest of your existing styles ... */
+
+/* User Profile Modal Styles */
+.user-profile-modal {
+  max-width: 600px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  background: white;
+  position: relative;
+}
+
+.user-profile-modal .profile-content {
+  padding: 24px;
+  padding-bottom: 80px; /* Make room for the fixed buttons */
+  max-height: calc(90vh - 70px);
+  overflow-y: auto;
+}
+
+.user-profile-modal .form-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+.user-profile-modal .cancel-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-profile-modal .save-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #000;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-profile-modal .save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ... rest of your existing styles ... */
+
+.user-profile-modal .profile-image-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile-modal .profile-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ... rest of your existing styles ... */
+
+/* User Profile Modal Styles */
+.user-profile-modal {
+  max-width: 600px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  background: white;
+  position: relative;
+}
+
+.user-profile-modal .profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.user-profile-modal .profile-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-profile-modal .close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  color: #666;
+  line-height: 1;
+}
+
+.user-profile-modal .profile-content {
+  padding: 24px;
+  padding-bottom: 80px; /* Make room for the fixed buttons */
+  max-height: calc(90vh - 70px);
+  overflow-y: auto;
+}
+
+.user-profile-modal .profile-image-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.user-profile-modal .profile-image-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile-modal .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-profile-modal .image-upload-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 0;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.user-profile-modal .image-upload-label:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.user-profile-modal .form-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.user-profile-modal .form-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-profile-modal .form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.user-profile-modal .form-group {
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.user-profile-modal .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+  font-size: 14px;
+}
+
+.user-profile-modal .form-group input,
+.user-profile-modal .form-group textarea {
+  width: 90%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.user-profile-modal .form-group input:focus,
+.user-profile-modal .form-group textarea:focus {
+  border-color: #000;
+  outline: none;
+}
+
+.user-profile-modal .form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.user-profile-modal .disabled-input {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.user-profile-modal .form-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+.user-profile-modal .cancel-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-profile-modal .cancel-button:hover {
+  background-color: #f5f5f5;
+}
+
+.user-profile-modal .save-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #000;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-profile-modal .save-button:hover {
+  background-color: #333;
+}
+
+.user-profile-modal .save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .user-profile-modal .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .user-profile-modal {
+    width: 90% !important;
+    margin: 0 auto;
+  }
+}
+
+/* ... existing styles ... */
+
+/* Profile Notification Styles */
+.profile-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  min-width: 300px;
+  max-width: 90%;
+  padding: 16px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease-out;
+}
+
+.profile-notification.success {
+  border-left: 4px solid #4caf50;
+}
+
+.profile-notification.error {
+  border-left: 4px solid #f44336;
+}
+
+.profile-notification.warning {
+  border-left: 4px solid #ff9800;
+}
+
+.profile-notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-notification-icon {
+  font-size: 20px;
+}
+
+.profile-notification.success .profile-notification-icon {
+  color: #4caf50;
+}
+
+.profile-notification.error .profile-notification-icon {
+  color: #f44336;
+}
+
+.profile-notification.warning .profile-notification-icon {
+  color: #ff9800;
+}
+
+.profile-notification p {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+}
+
+.profile-notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.profile-notification-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+/* ... rest of your existing styles ... */
+
+/* Review Notification Styles */
+.review-notification {
+  position: fixed;
+  bottom: 100px;
+  left: 1rem;
+  z-index: 10000;
+  width: 280px;
+  top: 10rem;
+  align-items: center;
+  height: 2rem;
+  padding: 12px;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease-out;
+}
+
+.review-notification.success {
+  border-left: 3px solid #4caf50;
+}
+
+.review-notification.error {
+  border-left: 3px solid #f44336;
+}
+
+.review-notification.warning {
+  border-left: 3px solid #ff9800;
+}
+
+.review-notification-content {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Reduced gap */
+}
+
+.review-notification-icon {
+  font-size: 16px; /* Reduced icon size */
+  flex-shrink: 0;
+}
+
+.review-notification.success .review-notification-icon {
+  color: #4caf50;
+}
+
+.review-notification.error .review-notification-icon {
+  color: #f44336;
+}
+
+.review-notification.warning .review-notification-icon {
+  color: #ff9800;
+}
+
+.review-notification p {
+  margin: 0;
+  color: #333;
+  font-size: 13px; /* Slightly smaller font */
+  line-height: 1.4;
+  flex-grow: 1;
+  padding-right: 20px; /* Make room for close button */
+}
+
+.review-notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  line-height: 1;
+}
+
+.review-notification-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ... rest of your existing styles ... */

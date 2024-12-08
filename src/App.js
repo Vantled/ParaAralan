@@ -22,6 +22,7 @@ import BookmarkNotification from './components/BookmarkNotification';
 import AboutUsModal from './components/AboutUsModal';
 import HowItWorksTour from './components/HowItWorksTour';
 import DirectionsPanel from './components/DirectionsPanel';
+import UserProfileModal from './components/UserProfileModal';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -463,7 +464,8 @@ function HamburgerMenu({
   setShowRegisterModal, 
   setShowBookmarksModal,
   setShowAboutUs,
-  setShowTour  // Add this prop
+  setShowTour,
+  setShowProfileModal
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -473,12 +475,31 @@ function HamburgerMenu({
 
   const handleMenuClick = (action) => {
     setIsOpen(false);
-    if (action === 'login') setShowLoginModal(true);
-    if (action === 'register') setShowRegisterModal(true);
-    if (action === 'logout') handleLogout();
-    if (action === 'bookmarks') setShowBookmarksModal(true);
-    if (action === 'about') setShowAboutUs(true);
-    if (action === 'howItWorks') setShowTour(true);
+    switch (action) {
+      case 'login':
+        setShowLoginModal(true);
+        break;
+      case 'register':
+        setShowRegisterModal(true);
+        break;
+      case 'logout':
+        handleLogout();
+        break;
+      case 'bookmarks':
+        setShowBookmarksModal(true);
+        break;
+      case 'about':
+        setShowAboutUs(true);
+        break;
+      case 'howItWorks':
+        setShowTour(true);
+        break;
+      case 'profile':
+        setShowProfileModal(true);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -609,6 +630,7 @@ function App() {
   const [showAboutUs, setShowAboutUs] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [destinationSchool, setDestinationSchool] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
     // Fetch schools from Firebase
@@ -1189,6 +1211,7 @@ function App() {
           setShowBookmarksModal={setShowBookmarksModal}
           setShowAboutUs={setShowAboutUs}
           setShowTour={setShowTour}
+          setShowProfileModal={setShowProfileModal}
         />
       </div>
 
@@ -1442,6 +1465,12 @@ function App() {
       />
       
       <Footer />
+
+      {showProfileModal && (
+        <UserProfileModal
+          onClose={() => setShowProfileModal(false)}
+        />
+      )}
     </div>
   );
 }

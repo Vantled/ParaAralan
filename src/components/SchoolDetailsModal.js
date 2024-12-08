@@ -162,18 +162,16 @@ function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isA
       return;
     }
 
-    if (window.confirm('Are you sure you want to delete this review?')) {
-      try {
-        const schoolRef = doc(db, 'schools', school.id);
-        const updatedReviews = reviews.filter(r => 
-          !(r.userId === reviewToDelete.userId && r.createdAt === reviewToDelete.createdAt)
-        );
-        await updateDoc(schoolRef, { reviews: updatedReviews });
-        showNotification('Review deleted successfully!', 'success');
-      } catch (error) {
-        console.error('Error deleting review:', error);
-        showNotification('Failed to delete review. Please try again.', 'error');
-      }
+    try {
+      const schoolRef = doc(db, 'schools', school.id);
+      const updatedReviews = reviews.filter(r => 
+        !(r.userId === reviewToDelete.userId && r.createdAt === reviewToDelete.createdAt)
+      );
+      await updateDoc(schoolRef, { reviews: updatedReviews });
+      showNotification('Review deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      showNotification('Failed to delete review. Please try again.', 'error');
     }
   };
 
