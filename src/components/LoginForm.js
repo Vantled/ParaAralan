@@ -24,25 +24,15 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
       const userData = userDoc.data();
 
+      // Update user state
       setUser(userCredential.user);
       setUserType(userData?.userType || 'student');
       
-      // Show notification first
-      showNotification('Successfully logged in!', 'success');
+      // Close modal first
+      onClose();
       
-      // Wait for notification to be seen
-      setTimeout(() => {
-        // Add blur effect
-        document.body.classList.add('page-transitioning');
-        
-        // Reload after a brief moment of blur
-        setTimeout(() => {
-          window.location.reload();
-        }, 500); // Reload 0.5 seconds after blur starts
-        
-        // Blur will continue during and after reload for smooth transition
-        
-      }, 1500); // Wait 1.5s after success notification before starting blur
+      // Then show success notification
+      showNotification('Successfully logged in!', 'success');
       
     } catch (error) {
       if (error.code === 'auth/invalid-credential') {
@@ -51,7 +41,6 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
         setError('An error occurred. Please try again.');
         showNotification('An error occurred. Please try again.', 'error');
       }
-    } finally {
       setIsLoading(false);
     }
   };
