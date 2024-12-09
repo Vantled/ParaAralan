@@ -8722,3 +8722,396 @@ body {
   .user-profile-modal .zoom-controls {
     max-width: 250px;
   }
+
+/* Update filter controls to handle more filters */
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.filter-dropdown {
+  position: relative;
+  min-width: 160px;
+}
+
+.filter-dropdown button {
+  width: 100%;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+  color: #495057;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-dropdown button::after {
+  content: '▼';
+  font-size: 0.8rem;
+  margin-left: 8px;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-content div {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dropdown-content div:hover {
+  background: #f8f9fa;
+  color: #3498db;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 90%;
+    gap: 8px;
+  }
+
+  .filter-dropdown {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+}
+
+/* Scrollbar styles for dropdown content */
+.dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Filter Controls Styles */
+.filter-controls {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  align-items: center;
+}
+
+.filter-button-container {
+  position: relative;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+  color: #495057;
+  transition: all 0.2s;
+}
+
+.filter-button.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+.filter-count {
+  background: #2196f3;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-left: 4px;
+}
+
+.filters-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.filters-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.clear-filters {
+  background: none;
+  border: none;
+  color: #2196f3;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.filter-section {
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.filter-section:last-child {
+  border-bottom: none;
+}
+
+.filter-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.filter-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.filter-option span {
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .filters-dropdown {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .filter-controls {
+    flex-wrap: wrap;
+  }
+
+  .search-container {
+    width: 100%;
+    order: -1;
+  }
+
+  .filter-button-container {
+    flex: 1;
+  }
+}
+
+/* Scrollbar styles */
+.filters-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filters-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.filters-dropdown::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.filters-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Enhanced search result styles */
+.search-result-item {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background-color: #f8f9fa;
+}
+
+.search-result-item .school-name {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.search-result-item .school-details {
+  display: flex;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.search-result-item .location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search-result-item .location::before {
+  content: "📍";
+  font-size: 0.9rem;
+}
+
+.search-result-item .rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #f1c40f;
+}
+
+/* Update filter section styles */
+.filter-section {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-section h4 {
+  color: #2c3e50;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.filter-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.filter-option:hover {
+  background-color: #f8f9fa;
+}
+
+.filter-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.filter-option span {
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.scholarship-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.checkbox-label:hover {
+  background-color: #f8f9fa;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}

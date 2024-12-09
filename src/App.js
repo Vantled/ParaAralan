@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -27,6 +27,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfUse from './components/TermsOfUse';
 import ContactUs from './components/ContactUs';
 import { getStorage } from 'firebase/storage';
+import searchApi from './services/searchApi';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -636,6 +637,17 @@ function App() {
   const [showTermsOfUse, setShowTermsOfUse] = useState(false);
   const [showContactUs, setShowContactUs] = useState(false);
 
+  // Update to use async filtering
+  const [filteredSchools, setFilteredSchools] = useState([]);
+
+  useEffect(() => {
+    const applyFilters = async () => {
+      const results = await searchApi.applyFilters(schools, filters, userLocation);
+      setFilteredSchools(results);
+    };
+    applyFilters();
+  }, [schools, filters, userLocation]);
+
   useEffect(() => {
     // Fetch schools from Firebase
     const fetchSchools = async () => {
@@ -811,25 +823,6 @@ function App() {
     }
   };
 
-  // Get filtered schools based on current filters
-  const filteredSchools = schools.filter(school => {
-    // Type filter
-    if (filters.type && !school.type?.toLowerCase().includes(filters.type.toLowerCase())) {
-      return false;
-    }
-    
-    // Scholarship filter
-    if (filters.hasScholarship !== null) {
-      // Check if school has scholarships array and it's not empty
-      const hasScholarships = school.scholarships && school.scholarships.length > 0;
-      if (filters.hasScholarship !== hasScholarships) {
-        return false;
-      }
-    }
-    
-    return true;
-  });
-
   const showNotification = (message, type = 'success', duration = 3000) => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), duration);
@@ -938,7 +931,6 @@ function App() {
     const adminEmails = [
       'andrei@admin.com',
       'pecayo004@gmail.com'
-
 
     ];
     setIsAdmin(adminEmails.includes(user.email));

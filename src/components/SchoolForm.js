@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useHistory from '../hooks/useHistory';
+import algoliaService from '../services/algoliaService';
 
 function SchoolForm({ onSubmit, onCancel, showNotification }) {
   const {
@@ -81,8 +82,9 @@ function SchoolForm({ onSubmit, onCancel, showNotification }) {
               required
             >
               <option value="">Select Type</option>
-              <option value="university">University</option>
-              <option value="college">College</option>
+              {algoliaService.filterOptions.type.options.map((type, index) => (
+                <option key={index} value={type}>{type}</option>
+              ))}
             </select>
           </div>
           <div className="form-group">
@@ -229,90 +231,54 @@ function SchoolForm({ onSubmit, onCancel, showNotification }) {
 
         <div className="form-section">
           <h3>Tuition Fees</h3>
-          {Object.entries(formData.tuitionFees).map(([feeName, amount], index) => (
-            <div key={index} className="fee-entry">
-              <input
-                type="text"
-                value={feeName}
-                onChange={(e) => {
-                  const newFees = { ...formData.tuitionFees };
-                  const oldName = feeName;
-                  delete newFees[oldName];
-                  newFees[e.target.value] = amount;
-                  setFormData({ ...formData, tuitionFees: newFees });
-                }}
-                placeholder="Fee Name"
-              />
-              <input
-                type="text"
-                value={amount}
-                onChange={(e) => {
-                  const newFees = { ...formData.tuitionFees };
-                  newFees[feeName] = e.target.value;
-                  setFormData({ ...formData, tuitionFees: newFees });
-                }}
-                placeholder="Amount"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const newFees = { ...formData.tuitionFees };
-                  delete newFees[feeName];
-                  setFormData({ ...formData, tuitionFees: newFees });
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => {
-              const newFees = { ...formData.tuitionFees };
-              newFees[`Fee ${Object.keys(newFees).length + 1}`] = '';
-              setFormData({ ...formData, tuitionFees: newFees });
-            }}
-          >
-            Add Fee
-          </button>
+          <div className="form-group">
+            <label>Tuition Range (per semester):</label>
+            <select
+              value={formData.tuitionRange}
+              onChange={(e) => {
+                const range = e.target.value;
+                const ranges = {
+                  'Under ₱30,000': 25000,
+                  '₱30,000 - ₱50,000': 40000,
+                  '₱50,000 - ₱70,000': 60000,
+                  '₱70,000 - ₱100,000': 85000,
+                  'Above ₱100,000': 120000
+                };
+                setFormData({
+                  ...formData,
+                  tuitionRange: range,
+                  tuitionFees: { 'Per Semester': ranges[range] || 0 }
+                });
+              }}
+              required
+            >
+              <option value="">Select Tuition Range</option>
+              {algoliaService.filterOptions.tuitionRange.options.map((range, index) => (
+                <option key={index} value={range}>{range}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="form-section">
           <h3>Scholarships</h3>
-          {formData.scholarships.map((scholarship, index) => (
-            <div key={index} className="scholarship-entry">
-              <input
-                type="text"
-                value={scholarship}
-                onChange={(e) => {
-                  const newScholarships = [...formData.scholarships];
-                  newScholarships[index] = e.target.value;
-                  setFormData({ ...formData, scholarships: newScholarships });
-                }}
-                placeholder="Scholarship Name"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const newScholarships = formData.scholarships.filter((_, i) => i !== index);
-                  setFormData({ ...formData, scholarships: newScholarships });
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => {
-              setFormData({
-                ...formData,
-                scholarships: [...formData.scholarships, '']
-              });
-            }}
-          >
-            Add Scholarship
-          </button>
+          <div className="scholarship-options">
+            {algoliaService.filterOptions.scholarships.options.map((scholarship, index) => (
+              <label key={index} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={formData.scholarships.includes(scholarship)}
+                  onChange={(e) => {
+                    const updatedScholarships = e.target.checked
+                      ? [...formData.scholarships, scholarship]
+                      : formData.scholarships.filter(s => s !== scholarship);
+                    setFormData({ ...formData, scholarships: updatedScholarships });
+                  }}
+                />
+                {scholarship}
+              </label>
+            ))}
+          </div>
         </div>
 
         <div className="form-section">
