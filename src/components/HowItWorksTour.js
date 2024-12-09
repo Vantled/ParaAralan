@@ -23,6 +23,27 @@ const steps = [
     offset: { top: 0, left: 10 }
   },
   {
+    target: '.map-view-control',
+    title: 'Map View Options',
+    content: 'Switch between different map views: Default, Satellite, or Complete view to see different map details.',
+    placement: 'left',
+    offset: { top: -100, left: -100 }
+  },
+  {
+    target: '.custom-zoom-control',
+    title: 'Navigation Controls',
+    content: 'Use these controls to zoom in/out and locate your current position on the map.',
+    placement: 'left',
+    offset: { top: -100, left: -100 }
+  },
+  {
+    target: '.location-button',
+    title: 'My Location',
+    content: 'Click here to find and center the map on your current location.',
+    placement: 'left',
+    offset: { top: -50, left: -100 }
+  },
+  {
     target: '.school-details-container',
     title: 'School Information',
     content: 'View detailed information about schools, including programs, requirements, and directions.',
@@ -183,7 +204,7 @@ function HowItWorksTour({ onClose, isVisible, setSelectedSchool, schools }) {
           
           <div className="tour-controls">
             <div className="tour-progress">
-              {steps.map((_, index) => (
+              {Array.from({ length: 7 }).map((_, index) => (
                 <span 
                   key={index} 
                   className={`tour-dot ${index === currentStep ? 'active' : ''}`}
