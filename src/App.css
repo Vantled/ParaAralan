@@ -9182,3 +9182,37 @@ body {
     font-size: 0.9rem;
   }
 }
+
+/* Add password requirements hint styling */
+.password-requirements {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Add visual feedback for password match/mismatch */
+.form-group input[type="password"] {
+  border-color: #ddd;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input[type="password"].match {
+  border-color: #2ecc71;
+}
+
+.form-group input[type="password"].mismatch {
+  border-color: #e74c3c;
+}
+
+/* Update error message styling */
+.register-form p.error {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 0.8rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  text-align: center;
+}

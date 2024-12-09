@@ -231,8 +231,12 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
     setError(null);
     switch (step) {
       case 1:
-        if (!email || !isOtpVerified || !password || !confirmPassword) {
-          setError("Please complete email verification and password fields");
+        if (!email || !isOtpVerified) {
+          setError("Please complete email verification");
+          return false;
+        }
+        if (!password || !confirmPassword) {
+          setError("Please enter and confirm your password");
           return false;
         }
         if (password !== confirmPassword) {
@@ -241,6 +245,16 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
         }
         if (password.length < 6) {
           setError("Password must be at least 6 characters long");
+          return false;
+        }
+        // Add password strength validation if needed
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        
+        if (!(hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar)) {
+          setError("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
           return false;
         }
         return true;
@@ -276,6 +290,12 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Add this validation check
+    if (!validateStep()) {
+      return;  // Stop if validation fails
+    }
+
     setIsLoading(true);
     try {
       const auth = getAuth();
@@ -376,20 +396,30 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
 
             {isOtpVerified && (
               <>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
+                <div className="form-group">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={handlePasswordChange}
+                    required
+                    className={confirmPassword ? (password === confirmPassword ? 'match' : 'mismatch') : ''}
+                  />
+                  <span className="password-requirements">
+                    Password must contain at least 6 characters, including uppercase, lowercase, 
+                    number, and special character
+                  </span>
+                </div>
+                <div className="form-group">
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    required
+                    className={confirmPassword ? (password === confirmPassword ? 'match' : 'mismatch') : ''}
+                  />
+                </div>
               </>
             )}
           </div>
@@ -541,6 +571,41 @@ function RegisterForm({ setUser, setUserType, onClose, showNotification, setShow
 
       default:
         return null;
+    }
+  };
+
+  // Add real-time password validation
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    
+    // Clear error when user starts typing again
+    if (error && error.includes('Password')) {
+      setError(null);
+    }
+    
+    // If confirm password is not empty, check match
+    if (confirmPassword && newPassword !== confirmPassword) {
+      setError("Passwords don't match");
+    } else if (confirmPassword && newPassword === confirmPassword) {
+      setError(null);
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const confirmPwd = e.target.value;
+    setConfirmPassword(confirmPwd);
+    
+    // Clear error when user starts typing again
+    if (error && error.includes('Password')) {
+      setError(null);
+    }
+    
+    // Check if passwords match
+    if (password && confirmPwd && password !== confirmPwd) {
+      setError("Passwords don't match");
+    } else if (password && confirmPwd && password === confirmPwd) {
+      setError(null);
     }
   };
 
