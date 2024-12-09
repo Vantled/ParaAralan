@@ -8244,3 +8244,28 @@ body {
     font-size: 0.75rem;
   }
 }
+
+.image-url-input {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.image-url-input label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.image-url-input .url-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.image-url-input .url-input:focus {
+  border-color: #000;
+  outline: none;
+}

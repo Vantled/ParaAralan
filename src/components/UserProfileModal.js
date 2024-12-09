@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import defaultAvatar from '../assets/default-avatar.svg';
 import ProfileNotification from './ProfileNotification';
+import { uploadImage, DEFAULT_AVATAR_URL } from '../utils/imageUpload';
 
 function UserProfileModal({ onClose }) {
   const auth = getAuth();
   const db = getFirestore();
-  const storage = getStorage();
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -28,6 +27,14 @@ function UserProfileModal({ onClose }) {
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const fetchUserProfile = useCallback(async () => {
@@ -56,88 +63,71 @@ function UserProfileModal({ onClose }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        showNotification('Image size should be less than 5MB', 'warning');
+      // Validate file
+      if (!file.type.startsWith('image/')) {
+        showNotification('Please select an image file', 'error');
         return;
       }
-      setProfileImage(file);
+
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit for Imgur
+        showNotification('Image must be smaller than 10MB', 'error');
+        return;
+      }
+
+      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
+        setProfileImage(file);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUserData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!auth.currentUser) {
-      showNotification('You must be logged in to update your profile', 'error');
-      return;
-    }
-
     setLoading(true);
-    let photoURL = userData.photoURL;
 
     try {
-      // Upload new profile image if selected
+      let photoURL = userData.photoURL;
+
       if (profileImage) {
         try {
-          const imageRef = ref(storage, `profile-images/${auth.currentUser.uid}`);
-          await uploadBytes(imageRef, profileImage);
-          photoURL = await getDownloadURL(imageRef);
+          showNotification('Uploading image...', 'info');
+          const imageUrl = await uploadImage(profileImage);
+          
+          if (imageUrl === DEFAULT_AVATAR_URL) {
+            showNotification('Failed to upload image. Using default avatar.', 'warning');
+          }
+          
+          photoURL = imageUrl;
         } catch (error) {
-          console.error('Error uploading profile image:', error);
-          showNotification('Failed to upload profile image. Other changes will still be saved.', 'warning');
+          console.error('Error handling image:', error);
+          showNotification('Failed to upload image. Using default avatar.', 'warning');
+          photoURL = DEFAULT_AVATAR_URL;
         }
       }
 
       // Update auth profile
-      try {
-        await updateProfile(auth.currentUser, {
-          displayName: `${userData.firstName} ${userData.lastName}`,
-          photoURL
-        });
-      } catch (error) {
-        console.error('Error updating auth profile:', error);
-        showNotification('Failed to update display name', 'warning');
-      }
+      await updateProfile(auth.currentUser, {
+        displayName: `${userData.firstName} ${userData.lastName}`,
+        photoURL
+      });
 
-      // Update Firestore profile
+      // Update Firestore
       const userRef = doc(db, 'users', auth.currentUser.uid);
-      const updatedData = {
+      await updateDoc(userRef, {
         ...userData,
         photoURL,
         updatedAt: new Date().toISOString()
-      };
+      });
 
-      try {
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          await updateDoc(userRef, updatedData);
-        } else {
-          await setDoc(userRef, {
-            ...updatedData,
-            createdAt: new Date().toISOString()
-          });
-        }
-        showNotification('Profile updated successfully!', 'success');
-        setTimeout(onClose, 1500); // Close after showing success message
-      } catch (error) {
-        console.error('Error updating Firestore profile:', error);
-        showNotification('Failed to save profile changes. Please try again.', 'error');
-      }
+      showNotification('Profile updated successfully!', 'success');
+      setTimeout(onClose, 1500);
+
     } catch (error) {
-      console.error('Error updating profile:', error);
-      showNotification('An error occurred while saving changes. Please try again.', 'error');
+      console.error('Update error:', error);
+      showNotification('Failed to update profile', 'error');
     } finally {
       setLoading(false);
     }
@@ -171,6 +161,10 @@ function UserProfileModal({ onClose }) {
                   src={imagePreview || userData.photoURL || defaultAvatar} 
                   alt="Profile" 
                   className="profile-image"
+                  onError={(e) => {
+                    e.target.src = defaultAvatar;
+                    showNotification('Error loading image. Using default avatar.', 'warning');
+                  }}
                 />
                 <label className="image-upload-label">
                   <input
