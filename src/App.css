@@ -9216,3 +9216,51 @@ body {
   font-size: 0.9rem;
   text-align: center;
 }
+
+/* Reset password message styles */
+.reset-message {
+  padding: 12px 16px;
+  margin: 1rem 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.reset-message.success {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+  border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+.reset-message.error {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.reset-message i {
+  font-size: 1.1rem;
+}
+
+/* Update reset buttons styles */
+.reset-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.reset-buttons button {
+  flex: 1;
+  padding: 0.8rem 1.5rem;
+}
+
+.reset-buttons .back-button {
+  background: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+.reset-buttons .back-button:hover {
+  background: rgba(0, 0, 0, 0.15);
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import LoadingSpinner from './LoadingSpinner';
 
 function LoginForm({ setUser, setUserType, onClose, showNotification, setShowRegisterModal }) {
@@ -48,28 +48,58 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setIsResetting(true);
+    setError('');
     const auth = getAuth();
+    const db = getFirestore();
 
     try {
-      const signInMethods = await fetchSignInMethodsForEmail(auth, resetEmail);
-      
-      if (signInMethods.length === 0) {
-        setError('No account found with this email address.');
-        showNotification('No account found with this email address.', 'error');
+      // First check if the email is valid
+      if (!resetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail)) {
+        setError('Please enter a valid email address');
+        setIsResetting(false);
         return;
       }
 
+      // Check Firestore for the email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', resetEmail));
+      const querySnapshot = await getDocs(q);
+      const existsInFirestore = !querySnapshot.empty;
+
+      // Check Firebase Auth for the email
+      const signInMethods = await fetchSignInMethodsForEmail(auth, resetEmail);
+      const existsInAuth = signInMethods.length > 0;
+
+      // Email exists if it's found in either Auth or Firestore
+      const emailExists = existsInAuth || existsInFirestore;
+
+      if (!emailExists) {
+        setError('No account found with this email address.');
+        showNotification('No account found with this email address.', 'error');
+        setIsResetting(false);
+        return;
+      }
+
+      // If email exists, send reset email
       await sendPasswordResetEmail(auth, resetEmail);
       setResetSent(true);
-      setError('');
       showNotification('Password reset email sent! Please check your inbox.', 'success');
+
     } catch (error) {
-      if (error.code === 'auth/invalid-email') {
-        setError('Please enter a valid email address.');
-        showNotification('Please enter a valid email address.', 'error');
-      } else {
-        setError(error.message);
-        showNotification(error.message, 'error');
+      console.error('Reset password error:', error);
+      // Handle specific Firebase error codes
+      switch (error.code) {
+        case 'auth/invalid-email':
+          setError('Please enter a valid email address.');
+          showNotification('Please enter a valid email address.', 'error');
+          break;
+        case 'auth/too-many-requests':
+          setError('Too many attempts. Please try again later.');
+          showNotification('Too many attempts. Please try again later.', 'error');
+          break;
+        default:
+          setError('An error occurred. Please try again.');
+          showNotification('An error occurred. Please try again.', 'error');
       }
     } finally {
       setIsResetting(false);
@@ -85,30 +115,29 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
     return (
       <div className="login-form">
         <h2>Reset Password</h2>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
         {resetSent ? (
-          <div className="reset-success">
-            <p>Password reset email has been sent!</p>
-            <p>Please check your email and follow the instructions.</p>
-            <button onClick={() => {
-              setShowForgotPassword(false);
-              setResetSent(false);
-              setResetEmail('');
-            }}>
-              Back to Login
-            </button>
+          <div className="reset-message success">
+            <i className="fas fa-check-circle"></i>
+            Password reset email has been sent! Please check your email.
           </div>
-        ) : (
-          <form onSubmit={handleForgotPassword}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={resetEmail}
-              onChange={(e) => setResetEmail(e.target.value)}
-              required
-              disabled={isResetting}
-            />
-            <div className="reset-buttons">
+        ) : error ? (
+          <div className="reset-message error">
+            <i className="fas fa-exclamation-circle"></i>
+            {error}
+          </div>
+        ) : null}
+        
+        <form onSubmit={handleForgotPassword}>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            required
+            disabled={isResetting || resetSent}
+          />
+          <div className="reset-buttons">
+            {!resetSent && (
               <button type="submit" disabled={isResetting}>
                 {isResetting ? (
                   <>
@@ -119,17 +148,22 @@ function LoginForm({ setUser, setUserType, onClose, showNotification, setShowReg
                   'Send Reset Link'
                 )}
               </button>
-              <button 
-                type="button" 
-                onClick={() => setShowForgotPassword(false)}
-                className="back-button"
-                disabled={isResetting}
-              >
-                Back to Login
-              </button>
-            </div>
-          </form>
-        )}
+            )}
+            <button 
+              type="button" 
+              onClick={() => {
+                setShowForgotPassword(false);
+                setResetSent(false);
+                setResetEmail('');
+                setError('');
+              }}
+              className="back-button"
+              disabled={isResetting}
+            >
+              Back to Login
+            </button>
+          </div>
+        </form>
       </div>
     );
   }
