@@ -3951,7 +3951,7 @@ body {
     /* Update the school edit form styles */
     .school-edit-form {
       padding: 1rem;
-      padding-top: 4rem; /* Increase top padding to account for the button */
+      padding-top: 4rem; /* Add extra padding at the top */
       width: 100%;
       box-sizing: border-box;
     }
@@ -6513,36 +6513,6 @@ body {
     pointer-events: none;
   }
 
-  /* Update the touroverlay to be transparent */
-  .tour-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: transparent;
-    z-index: 2000;
-  }
-
-  /* Remove the overlay's before pseudo-element that was adding the black background */
-  .tour-overlay::before {
-    display: none;
-  }
-
-  /* Update the pointer styles to be an unfilled red circle */
-  .tour-pointer {
-    position: fixed;
-    width: 30px;
-    height: 30px;
-    background: transparent;
-    border: 3px solid #e74c3c;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2002;
-    animation: pulse-red 2s infinite;
-    pointer-events: none;
-  }
-
   /* Update pulse animation for red circle */
   @keyframes pulse-red {
     0% {
@@ -7835,14 +7805,14 @@ body {
   overflow: hidden;
   background: white;
   position: relative;
+  height: fit-content;
 }
 
 .user-profile-modal .profile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eee!important;
   background: #fff;
 }
 
@@ -8029,7 +7999,6 @@ body {
   }
 }
 
-/* ... existing styles ... */
 
 /* Profile Notification Styles */
 .profile-notification {
@@ -8116,7 +8085,6 @@ body {
   }
 }
 
-/* ... rest of your existing styles ... */
 
 /* Review Notification Styles */
 .review-notification {
@@ -8269,3 +8237,488 @@ body {
   border-color: #000;
   outline: none;
 }
+
+/* Image Cropper Styles */
+.image-cropper-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2100;
+  display: flex;
+  flex-direction: column;
+}
+
+.cropper-wrapper {
+  position: relative;
+  flex: 1;
+  background: #000;
+}
+
+.cropper-controls {
+  height: auto;
+  padding: 20px;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.zoom-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.zoom-controls span {
+  color: white;
+  font-size: 14px;
+}
+
+.zoom-slider {
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+}
+
+.zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #3498db;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.zoom-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #3498db;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.zoom-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+.cropper-buttons {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 300px;
+  justify-content: center;
+}
+
+.cancel-crop-button,
+.apply-crop-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 120px;
+}
+
+.cancel-crop-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.apply-crop-button {
+  background: #3498db;
+  color: white;
+}
+
+.cancel-crop-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.apply-crop-button:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+/* Ensure the cropper container is responsive */
+@media screen and (max-width: 768px) {
+  .cropper-controls {
+    padding: 15px;
+  }
+  
+  .zoom-controls {
+    max-width: 250px;
+  }
+  
+  .cropper-buttons {
+    flex-direction: row;
+    max-width: 250px;
+  }
+  
+  .cancel-crop-button,
+  .apply-crop-button {
+    padding: 10px 20px;
+    min-width: 100px;
+  }
+}
+
+/* Add these styles to handle the reactEasyCrop elements */
+.reactEasyCrop_Container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+  cursor: move;
+}
+
+.reactEasyCrop_Image {
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  object-fit: contain;
+}
+
+.reactEasyCrop_CropArea {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.reactEasyCrop_CropAreaGrid {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.reactEasyCrop_CropAreaGrid::before,
+.reactEasyCrop_CropAreaGrid::after {
+  content: '';
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.reactEasyCrop_CropAreaGrid::before {
+  width: 100%;
+  height: 33.33%;
+  top: 33.33%;
+}
+
+.reactEasyCrop_CropAreaGrid::after {
+  width: 33.33%;
+  height: 100%;
+  left: 33.33%;
+}
+
+/* Update Image Cropper Styles */
+.image-cropper-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  height: 80vh;
+  z-index: 2100;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.cropper-wrapper {
+  position: relative;
+  flex: 1;
+  background: #000;
+  min-height: 300px; /* Minimum height for the cropper area */
+  max-height: calc(80vh - 120px); /* Subtract controls height */
+  overflow: hidden;
+}
+
+.cropper-controls {
+  height: auto;
+  min-height: 120px;
+  padding: 20px;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0; /* Prevent controls from shrinking */
+}
+
+/* Update the crop area container */
+.reactEasyCrop_Container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+  cursor: move;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reactEasyCrop_Image {
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  position: relative; /* Changed from absolute */
+  object-fit: contain;
+}
+
+/* Add backdrop for modal */
+.modal-backdrop.cropper-backdrop {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .image-cropper-container {
+    width: 95%;
+    height: 90vh;
+    top: 5vh;
+    transform: translateX(-50%);
+  }
+
+  .cropper-wrapper {
+    max-height: calc(90vh - 140px);
+  }
+
+  .cropper-controls {
+    min-height: 140px;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  .image-cropper-container {
+    height: 95vh;
+    top: 2.5vh;
+  }
+
+  .cropper-controls {
+    min-height: 100px;
+    padding: 10px;
+  }
+}
+
+/* Update User Profile Modal Styles */
+.modal-content.user-profile-modal {
+  max-width: 600px !important;
+  width: 90% !important;
+  min-height: 200px;
+  max-height: 90vh;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  background: white;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-profile-modal .profile-content {
+  padding: 26px;
+  overflow-y: auto;
+  position: relative;
+  top: -32px;
+  height: 40.5rem;
+}
+
+/* Image Cropper Container within User Profile Modal */
+.user-profile-modal .image-cropper-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  max-height: 95%;
+  max-width: 100%;
+  margin: 0;
+  transform: none;
+  top: 0;
+  left: 0;
+  border-radius: 0;
+}
+
+.user-profile-modal .cropper-wrapper {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  min-height: auto;
+  max-height: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-profile-modal .reactEasyCrop_Container {
+  width: 100% !important;
+  height: 74% !important;
+  position: absolute !important;
+}
+
+.user-profile-modal .reactEasyCrop_CropArea {
+  width: 250px !important;
+  height: 250px !important;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .modal-content.user-profile-modal {
+    width: 95% !important;
+    max-height: 95vh;
+  }
+
+  .user-profile-modal .image-cropper-container {
+    min-height: 300px;
+  }
+
+  .user-profile-modal .cropper-wrapper {
+    height: 300px;
+  }
+
+  .user-profile-modal .reactEasyCrop_CropArea {
+    width: 200px !important;
+    height: 200px !important;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  .user-profile-modal .image-cropper-container {
+    min-height: 250px;
+  }
+
+  .user-profile-modal .cropper-wrapper {
+    height: 250px;
+  }
+
+  .user-profile-modal .reactEasyCrop_CropArea {
+    width: 150px !important;
+    height: 150px !important;
+  }
+}
+
+/* Modern Image Cropper Styles */
+.user-profile-modal .image-cropper-container {
+  position: relative;
+  top: -2rem;
+  width: 100%;
+  height: 100%;  /* Changed from 500px to 100% */
+  margin: 0;
+  border-radius: 12px;  /* Match modal border radius */
+  overflow: hidden;
+}
+
+.user-profile-modal .cropper-wrapper {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 150px);  /* Subtract controls height */
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-profile-modal .cropper-controls {
+  height: 150px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: absolute;
+  bottom: -4rem;
+  left: 0;
+  right: 0;
+}
+
+/* Update modal content styles */
+.modal-content.user-profile-modal {
+  max-width: 600px !important;
+  width: 90% !important;
+  height: 49rem !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Update header styles */
+.user-profile-modal .profile-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 24px;
+}
+
+.user-profile-modal .profile-header h2 {
+  color: #333;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.user-profile-modal .close-button {
+  color: #9CA3AF;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .modal-content.user-profile-modal {
+    height: 500px !important;  /* Smaller height for mobile */
+  }
+
+  .user-profile-modal .cropper-wrapper {
+    height: calc(100% - 120px);  /* Adjust for smaller controls height */
+  }
+
+  .user-profile-modal .cropper-controls {
+    height: 120px;
+    padding: 16px;
+  }
+}
+  .user-profile-modal .zoom-controls {
+    max-width: 250px;
+  }

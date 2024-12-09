@@ -934,8 +934,13 @@ function App() {
       return;
     }
 
-    // You can store admin UIDs in Firebase or check against a specific email domain
-    const adminEmails = ['andrei@admin.com']; // Change this to your actual admin email
+    // Lagayan ng admin
+    const adminEmails = [
+      'andrei@admin.com',
+      'pecayo004@gmail.com'
+
+
+    ];
     setIsAdmin(adminEmails.includes(user.email));
   };
 

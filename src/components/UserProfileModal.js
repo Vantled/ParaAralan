@@ -3,7 +3,8 @@ import { getAuth, updateProfile } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import defaultAvatar from '../assets/default-avatar.svg';
 import ProfileNotification from './ProfileNotification';
-import { uploadImage, DEFAULT_AVATAR_URL } from '../utils/imageUpload';
+import { uploadImage, DEFAULT_AVATAR_URL, dataURLtoFile } from '../utils/imageUpload';
+import ImageCropper from './ImageCropper';
 
 function UserProfileModal({ onClose }) {
   const auth = getAuth();
@@ -12,6 +13,8 @@ function UserProfileModal({ onClose }) {
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropImage, setCropImage] = useState(null);
 
   const [userData, setUserData] = useState({
     firstName: '',
@@ -69,18 +72,39 @@ function UserProfileModal({ onClose }) {
         return;
       }
 
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit for Imgur
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
         showNotification('Image must be smaller than 10MB', 'error');
         return;
       }
 
-      // Create preview
+      // Create preview and show cropper
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setProfileImage(file);
+        setCropImage(reader.result);
+        setShowCropper(true);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = async (cropData) => {
+    try {
+      const file = dataURLtoFile(cropImage, 'profile.jpg');
+      if (!file) {
+        throw new Error('Failed to process image');
+      }
+      
+      const imageUrl = await uploadImage(file, cropData);
+      setUserData(prev => ({
+        ...prev,
+        photoURL: imageUrl
+      }));
+      setShowCropper(false);
+      setCropImage(null);
+      showNotification('Image updated successfully', 'success');
+    } catch (error) {
+      console.error('Error handling crop:', error);
+      showNotification('Failed to update image', 'error');
     }
   };
 
@@ -153,158 +177,170 @@ function UserProfileModal({ onClose }) {
           <button className="close-button" onClick={onClose}>×</button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="profile-content">
-            <div className="profile-image-section">
-              <div className="profile-image-container">
-                <img 
-                  src={imagePreview || userData.photoURL || defaultAvatar} 
-                  alt="Profile" 
-                  className="profile-image"
-                  onError={(e) => {
-                    e.target.src = defaultAvatar;
-                    showNotification('Error loading image. Using default avatar.', 'warning');
-                  }}
-                />
-                <label className="image-upload-label">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    style={{ display: 'none' }}
+        {showCropper ? (
+          <ImageCropper
+            image={cropImage}
+            onCropComplete={handleCropComplete}
+            onCancel={() => {
+              setShowCropper(false);
+              setCropImage(null);
+            }}
+            aspect={1} // 1:1 aspect ratio for profile pictures
+          />
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="profile-content">
+              <div className="profile-image-section">
+                <div className="profile-image-container">
+                  <img 
+                    src={imagePreview || userData.photoURL || defaultAvatar} 
+                    alt="Profile" 
+                    className="profile-image"
+                    onError={(e) => {
+                      e.target.src = defaultAvatar;
+                      showNotification('Error loading image. Using default avatar.', 'warning');
+                    }}
                   />
-                  <i className="fas fa-camera"></i>
-                </label>
+                  <label className="image-upload-label">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      style={{ display: 'none' }}
+                    />
+                    <i className="fas fa-camera"></i>
+                  </label>
+                </div>
               </div>
-            </div>
 
-            <div className="form-section">
-              <h3>Personal Information</h3>
-              <div className="form-row">
+              <div className="form-section">
+                <h3>Personal Information</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>First Name</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={userData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="Enter first name"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Last Name</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={userData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Enter last name"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Contact Information</h3>
                 <div className="form-group">
-                  <label>First Name</label>
+                  <label>Email</label>
                   <input
-                    type="text"
-                    name="firstName"
-                    value={userData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="Enter first name"
-                    required
+                    type="email"
+                    value={userData.email}
+                    disabled
+                    className="disabled-input"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Last Name</label>
+                  <label>Phone Number</label>
                   <input
-                    type="text"
-                    name="lastName"
-                    value={userData.lastName}
+                    type="tel"
+                    name="phoneNumber"
+                    value={userData.phoneNumber}
                     onChange={handleInputChange}
-                    placeholder="Enter last name"
-                    required
+                    placeholder="Enter phone number"
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="form-section">
-              <h3>Contact Information</h3>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={userData.email}
-                  disabled
-                  className="disabled-input"
-                />
+              <div className="form-section">
+                <h3>Location</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>City</label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={userData.city}
+                      onChange={handleInputChange}
+                      placeholder="Enter city"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Region</label>
+                    <input
+                      type="text"
+                      name="region"
+                      value={userData.region}
+                      onChange={handleInputChange}
+                      placeholder="Enter region"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label>Phone Number</label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={userData.phoneNumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter phone number"
-                />
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>Location</h3>
-              <div className="form-row">
+              <div className="form-section">
+                <h3>Academic Interests</h3>
                 <div className="form-group">
-                  <label>City</label>
+                  <label>Desired Course/Program</label>
                   <input
                     type="text"
-                    name="city"
-                    value={userData.city}
+                    name="desiredProgram"
+                    value={userData.desiredProgram}
                     onChange={handleInputChange}
-                    placeholder="Enter city"
+                    placeholder="What course or program are you interested in?"
                   />
                 </div>
+              </div>
 
+              <div className="form-section">
+                <h3>School Notes</h3>
                 <div className="form-group">
-                  <label>Region</label>
-                  <input
-                    type="text"
-                    name="region"
-                    value={userData.region}
+                  <label>Custom Notes</label>
+                  <textarea
+                    name="notes"
+                    value={userData.notes}
                     onChange={handleInputChange}
-                    placeholder="Enter region"
+                    placeholder="Write your observations about schools here..."
+                    rows={4}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="form-section">
-              <h3>Academic Interests</h3>
-              <div className="form-group">
-                <label>Desired Course/Program</label>
-                <input
-                  type="text"
-                  name="desiredProgram"
-                  value={userData.desiredProgram}
-                  onChange={handleInputChange}
-                  placeholder="What course or program are you interested in?"
-                />
-              </div>
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="cancel-button" 
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="save-button"
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
             </div>
-
-            <div className="form-section">
-              <h3>School Notes</h3>
-              <div className="form-group">
-                <label>Custom Notes</label>
-                <textarea
-                  name="notes"
-                  value={userData.notes}
-                  onChange={handleInputChange}
-                  placeholder="Write your observations about schools here..."
-                  rows={4}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="form-actions">
-            <button 
-              type="button" 
-              className="cancel-button" 
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              className="save-button"
-              disabled={loading}
-            >
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
+          </form>
+        )}
       </div>
     </div>
   );
