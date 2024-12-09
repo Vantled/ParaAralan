@@ -6620,41 +6620,12 @@ body {
 
   .footer-links {
     display: flex;
-    gap: 1.5rem; /* Reduced gap */
     justify-content: center;
     align-items: center;
     height: 100%;
-  }
-
-  .footer-links a {
-    color: rgba(255, 255, 255, 0.85);
-    text-decoration: none;
-    font-size: 0.8rem; /* Reduced font size */
-    font-weight: 400;
-    transition: all 0.3s ease;
-    padding: 0.25rem 0; /* Reduced padding */
-    position: relative;
-  }
-
-  .footer-social {
-    display: flex;
-    gap: 0.8rem; /* Reduced gap */
-    justify-content: flex-end;
-    align-items: center;
-  }
-
-  .social-icon {
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.9rem; /* Reduced font size */
-    transition: all 0.3s ease;
-    padding: 0.4rem; /* Reduced padding */
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 14px; /* Reduced width */
-    height: 14px; /* Reduced height */
+    color: rgba(255, 255, 255, 0.85);  /* Added text color */
+    font-size: 0.8rem;  /* Match existing font size */
+    font-weight: 400;   /* Match existing font weight */
   }
 
   /* Mobile Responsiveness */
@@ -8239,3 +8210,37 @@ body {
 }
 
 /* ... rest of your existing styles ... */
+
+.footer-social {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.policy-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 400;
+  transition: all 0.3s ease;
+  padding: 0.25rem 0;
+  position: relative;
+}
+
+.policy-link:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+/* Update mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .footer-social {
+    justify-content: flex-end;
+    gap: 0.8rem;
+  }
+
+  .policy-link {
+    font-size: 0.75rem;
+  }
+}

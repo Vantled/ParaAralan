@@ -23,6 +23,9 @@ import AboutUsModal from './components/AboutUsModal';
 import HowItWorksTour from './components/HowItWorksTour';
 import DirectionsPanel from './components/DirectionsPanel';
 import UserProfileModal from './components/UserProfileModal';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfUse from './components/TermsOfUse';
+import ContactUs from './components/ContactUs';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -554,36 +557,32 @@ function HamburgerMenu({
   );
 }
 
-// Add this new Footer component near the top of your file
-function Footer() {
+// Update the Footer component to accept props
+function Footer({ setShowPrivacyPolicy, setShowTermsOfUse, setShowContactUs }) {
   return (
     <div className="footer-container">
       <div className="footer-content">
         <div className="footer-section footer-logo">
-          
           <h3>ParaAralan</h3>
         </div>
         
         <div className="footer-section footer-links">
-          <a href="#about">About Us</a>
-          <a href="#privacy">Privacy Policy</a>
-          <a href="#terms">Terms of Service</a>
-          <a href="#contact">Contact Us</a>
+          Copyright All Rights Reserved © 2024
         </div>
         
         <div className="footer-section footer-social">
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
-            <i className="fab fa-facebook"></i>
-          </a>
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon">
-            <i className="fab fa-twitter"></i>
-          </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">
-            <i className="fab fa-instagram"></i>
-          </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon">
-            <i className="fab fa-linkedin"></i>
-          </a>
+          <a href="#" onClick={(e) => {
+            e.preventDefault();
+            setShowPrivacyPolicy(true);
+          }} className="policy-link">Privacy Policy</a>
+          <a href="#" onClick={(e) => {
+            e.preventDefault();
+            setShowTermsOfUse(true);
+          }} className="policy-link">Terms of Use</a>
+          <a href="#" onClick={(e) => {
+            e.preventDefault();
+            setShowContactUs(true);
+          }} className="policy-link">Contact Us</a>
         </div>
       </div>
     </div>
@@ -631,6 +630,9 @@ function App() {
   const [showTour, setShowTour] = useState(false);
   const [destinationSchool, setDestinationSchool] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTermsOfUse, setShowTermsOfUse] = useState(false);
+  const [showContactUs, setShowContactUs] = useState(false);
 
   useEffect(() => {
     // Fetch schools from Firebase
@@ -1464,12 +1466,28 @@ function App() {
         schools={schools}
       />
       
-      <Footer />
+      <Footer 
+        setShowPrivacyPolicy={setShowPrivacyPolicy}
+        setShowTermsOfUse={setShowTermsOfUse}
+        setShowContactUs={setShowContactUs}
+      />
 
       {showProfileModal && (
         <UserProfileModal
           onClose={() => setShowProfileModal(false)}
         />
+      )}
+
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      )}
+
+      {showTermsOfUse && (
+        <TermsOfUse onClose={() => setShowTermsOfUse(false)} />
+      )}
+
+      {showContactUs && (
+        <ContactUs onClose={() => setShowContactUs(false)} />
       )}
     </div>
   );
