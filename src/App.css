@@ -4784,10 +4784,9 @@ body {
     .program-entry textarea,
     .requirement-entry textarea {
       min-height: 120px;
-      resize: both; /* Allow both vertical and horizontal resizing */
+      resize: both;
       line-height: 1.6;
-      max-width: fit-content; 
-      width: 648px !important; 
+      min-width: fit-content;
       box-sizing: border-box;
     }
 

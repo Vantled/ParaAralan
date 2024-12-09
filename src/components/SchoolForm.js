@@ -281,42 +281,6 @@ function SchoolForm({ onSubmit, onCancel, showNotification }) {
           </div>
         </div>
 
-        <div className="form-section">
-          <h3>Campus Life</h3>
-          <div className="form-group">
-            <label>Student Organizations:</label>
-            <textarea
-              value={formData.campusLife.organizations.join('\n')}
-              onChange={(e) => {
-                setFormData({
-                  ...formData,
-                  campusLife: {
-                    ...formData.campusLife,
-                    organizations: e.target.value.split('\n')
-                  }
-                });
-              }}
-              placeholder="Enter organizations (one per line)"
-            />
-          </div>
-          <div className="form-group">
-            <label>Facilities:</label>
-            <textarea
-              value={formData.campusLife.facilities.join('\n')}
-              onChange={(e) => {
-                setFormData({
-                  ...formData,
-                  campusLife: {
-                    ...formData.campusLife,
-                    facilities: e.target.value.split('\n')
-                  }
-                });
-              }}
-              placeholder="Enter facilities (one per line)"
-            />
-          </div>
-        </div>
-
         <div className="form-buttons">
           <button 
             type="button" 
