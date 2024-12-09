@@ -7062,11 +7062,13 @@ body {
   gap: 1rem;
   margin-bottom: 0.8rem;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .reviewer-name {
   font-weight: 500;
   color: #2c3e50;
+  font-size: 0.95rem;
 }
 
 .review-date {
@@ -9114,4 +9116,69 @@ body {
   width: 16px;
   height: 16px;
   margin: 0;
+}
+
+/* Add these styles for the reviewer info and avatar */
+.reviewer-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.reviewer-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f5;
+  flex-shrink: 0;
+}
+
+.reviewer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.default-avatar {
+  width: 100%;
+  height: 100%;
+  background: #3498db;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* Update review header styles */
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.reviewer-name {
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+/* Update mobile styles */
+@media screen and (max-width: 768px) {
+  .reviewer-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .reviewer-name {
+    font-size: 0.9rem;
+  }
 }

@@ -108,6 +108,7 @@ function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isA
       const review = {
         userId: auth.currentUser.uid,
         userName: isAnonymous ? 'Anonymous' : getUserDisplayName(),
+        userProfileImage: isAnonymous ? null : auth.currentUser.photoURL,
         rating,
         text: newReview.trim(),
         createdAt: new Date().toISOString(),
@@ -259,7 +260,18 @@ function SchoolDetailsModal({ school, onClose, userLocation, showDirections, isA
                   .map((review, index) => (
                     <div key={`${review.userId}-${review.createdAt}`} className="review-item">
                       <div className="review-header">
-                        <span className="reviewer-name">{review.userName}</span>
+                        <div className="reviewer-info">
+                          <div className="reviewer-avatar">
+                            {review.userProfileImage ? (
+                              <img src={review.userProfileImage} alt={review.userName} />
+                            ) : (
+                              <div className="default-avatar">
+                                {review.userName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <span className="reviewer-name">{review.userName}</span>
+                        </div>
                         <Rating value={review.rating} readOnly precision={0.5} size="small" />
                         <span className="review-date">
                           {new Date(review.createdAt).toLocaleDateString()}

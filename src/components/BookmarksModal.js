@@ -1,35 +1,50 @@
 import React from 'react';
 import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
-function BookmarksModal({ bookmarkedSchools, user, onClose, onSchoolSelect }) {
+function BookmarksModal({ bookmarkedSchools, user, onClose, onSchoolSelect, mapRef }) {
+  const handleViewSchool = (school) => {
+    if (mapRef.current) {
+      mapRef.current.flyTo(
+        [school.position.lat, school.position.lng],
+        16,
+        {
+          duration: 1.5,
+          easeLinearity: 0.25
+        }
+      );
+    }
+    onSchoolSelect(school);
+  };
+
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content bookmarks-modal" onClick={e => e.stopPropagation()}>
+    <div className="modal-backdrop">
+      <div className="modal-content bookmarks-modal">
         <button className="close-button" onClick={onClose}>×</button>
         <h2>My Bookmarked Schools</h2>
         
-        {bookmarkedSchools.length === 0 ? (
-          <p className="no-bookmarks">No bookmarked schools yet</p>
-        ) : (
-          <div className="bookmarked-schools-list">
-            {bookmarkedSchools.map(school => (
+        <div className="bookmarked-schools-list">
+          {bookmarkedSchools.length > 0 ? (
+            bookmarkedSchools.map(school => (
               <div key={school.id} className="bookmarked-school-item">
-                <div className="school-info">
+                <div>
                   <h3>{school.name}</h3>
                   <p>{school.location}</p>
                 </div>
                 <div className="bookmark-actions">
                   <button 
                     className="view-school-btn"
-                    onClick={() => onSchoolSelect(school)}
+                    onClick={() => handleViewSchool(school)}
                   >
-                    <i className="fas fa-eye"></i> View
+                    <i className="fas fa-eye"></i>
+                    View
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          ) : (
+            <p className="no-bookmarks">You haven't bookmarked any schools yet.</p>
+          )}
+        </div>
       </div>
     </div>
   );

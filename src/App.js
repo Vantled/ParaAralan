@@ -1450,7 +1450,19 @@ function App() {
           onSchoolSelect={(school) => {
             setSelectedSchool(school);
             setShowBookmarksModal(false);
+            // Add smooth animation to fly to the school location
+            if (mapRef.current) {
+              mapRef.current.flyTo(
+                [school.position.lat, school.position.lng],
+                16,
+                {
+                  duration: 1.5,
+                  easeLinearity: 0.25
+                }
+              );
+            }
           }}
+          mapRef={mapRef}
         />
       )}
 
