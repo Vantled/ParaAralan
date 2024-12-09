@@ -6,6 +6,69 @@ import ProfileNotification from './ProfileNotification';
 import { uploadImage, DEFAULT_AVATAR_URL, dataURLtoFile } from '../utils/imageUpload';
 import ImageCropper from './ImageCropper';
 
+const REGIONS = [
+  'National Capital Region (NCR)',
+  'Cordillera Administrative Region (CAR)',
+  'Ilocos Region (Region I)',
+  'Cagayan Valley (Region II)',
+  'Central Luzon (Region III)',
+  'CALABARZON (Region IV-A)',
+  'MIMAROPA (Region IV-B)',
+  'Bicol Region (Region V)',
+  'Western Visayas (Region VI)',
+  'Central Visayas (Region VII)',
+  'Eastern Visayas (Region VIII)',
+  'Zamboanga Peninsula (Region IX)',
+  'Northern Mindanao (Region X)',
+  'Davao Region (Region XI)',
+  'SOCCSKSARGEN (Region XII)',
+  'Caraga (Region XIII)',
+  'Bangsamoro (BARMM)'
+];
+
+const CITIES_BY_REGION = {
+  'CALABARZON (Region IV-A)': [
+    'Calamba',
+    'Los Baños',
+    'Santa Rosa',
+    'Biñan',
+    'San Pablo',
+    'Cabuyao',
+    'Sta. Cruz',
+    'San Pedro',
+    'Lucena',
+    'Lipa',
+    'Batangas City',
+    'Tanauan',
+    'Antipolo',
+    'Bacoor',
+    'Dasmariñas',
+    'Imus',
+    'General Trias',
+    'Tagaytay'
+  ],
+  'National Capital Region (NCR)': [
+    'Manila',
+    'Quezon City',
+    'Makati',
+    'Taguig',
+    'Pasig',
+    'Parañaque',
+    'Mandaluyong',
+    'San Juan',
+    'Pasay',
+    'Marikina',
+    'Muntinlupa',
+    'Las Piñas',
+    'Caloocan',
+    'Malabon',
+    'Navotas',
+    'Valenzuela',
+    'Pateros'
+  ],
+  // Add more regions and their cities as needed
+};
+
 function UserProfileModal({ onClose }) {
   const auth = getAuth();
   const db = getFirestore();
@@ -34,10 +97,20 @@ function UserProfileModal({ onClose }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUserData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setUserData(prev => {
+      // If region changes, reset city
+      if (name === 'region') {
+        return {
+          ...prev,
+          [name]: value,
+          city: '' // Reset city when region changes
+        };
+      }
+      return {
+        ...prev,
+        [name]: value
+      };
+    });
   };
 
   const fetchUserProfile = useCallback(async () => {
@@ -270,25 +343,38 @@ function UserProfileModal({ onClose }) {
                 <h3>Location</h3>
                 <div className="form-row">
                   <div className="form-group">
-                    <label>City</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={userData.city}
-                      onChange={handleInputChange}
-                      placeholder="Enter city"
-                    />
-                  </div>
-
-                  <div className="form-group">
                     <label>Region</label>
-                    <input
-                      type="text"
+                    <select
                       name="region"
                       value={userData.region}
                       onChange={handleInputChange}
-                      placeholder="Enter region"
-                    />
+                      className="form-select"
+                    >
+                      <option value="">Select Region</option>
+                      {REGIONS.map((region) => (
+                        <option key={region} value={region}>
+                          {region}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>City</label>
+                    <select
+                      name="city"
+                      value={userData.city}
+                      onChange={handleInputChange}
+                      className="form-select"
+                      disabled={!userData.region} // Disable if no region is selected
+                    >
+                      <option value="">Select City</option>
+                      {userData.region && CITIES_BY_REGION[userData.region]?.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>

@@ -2918,6 +2918,43 @@ body {
   }
 }
 
+/* Add these styles for the select inputs */
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background-color: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 32px;
+  position: relative; /* Add this */
+}
+
+.form-select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #666;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.form-select option {
+  padding: 8px;
+  background: white;
+  color: #333;
+}
+
   /* Add placeholder styles */
   .form-step input::placeholder {
     color: #95a5a6;
@@ -5168,7 +5205,6 @@ body {
 
   /* Optional: You can also use a custom pin image as cursor */
   .leaflet-container.adding-pin,
-  .leaflet-container.adding-pin .leaflet-interactive,
   .leaflet-container.adding-pin .leaflet-marker-icon,
   .leaflet-container.adding-pin .leaflet-marker-draggable,
   .leaflet-container.adding-pin .leaflet-image-layer,
@@ -6839,8 +6875,7 @@ body {
     margin: 20px 0;
     padding: 15px;
     background: #f5f5f5;
-    border-radius: 6px;
-  }
+    border-radius: 6px;  }
 
   .distance, .duration {
     display: flex;
@@ -8720,8 +8755,7 @@ body {
     height: 120px;
     padding: 16px;
   }
-}
-  .user-profile-modal .zoom-controls {
+}  .user-profile-modal .zoom-controls {
     max-width: 250px;
   }
 
@@ -9264,3 +9298,4 @@ body {
 .reset-buttons .back-button:hover {
   background: rgba(0, 0, 0, 0.15);
 }
+
