@@ -79,13 +79,34 @@ const searchApi = {
   // Update applyFilters to use Algolia
   applyFilters: async (schools, filters, userLocation) => {
     try {
-      return await algoliaService.search('', {
+      // Try Algolia search first
+      const algoliaResults = await algoliaService.search('', {
         ...filters,
         _geoloc: userLocation ? {
           lat: userLocation[0],
           lng: userLocation[1]
         } : null
       }, schools);
+
+      if (algoliaResults.length > 0) {
+        return algoliaResults;
+      }
+
+      // Fallback to local filtering
+      return schools.filter(school => {
+        // Check scholarships
+        if (filters.scholarships && school.scholarships) {
+          const selectedScholarship = filters.scholarships.toLowerCase();
+          const hasScholarship = school.scholarships.some(scholarship => 
+            scholarship.toLowerCase().includes(selectedScholarship)
+          );
+          if (!hasScholarship) return false;
+        }
+
+        // ... other filter checks ...
+
+        return true;
+      });
     } catch (error) {
       console.error('Filter error:', error);
       return schools;

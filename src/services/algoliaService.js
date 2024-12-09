@@ -145,6 +145,15 @@ const algoliaService = {
         }
       }
 
+      // Scholarship filter
+      if (filters.scholarships && school.scholarships) {
+        const selectedScholarship = filters.scholarships.toLowerCase();
+        const hasScholarship = school.scholarships.some(scholarship => 
+          scholarship.toLowerCase().includes(selectedScholarship)
+        );
+        if (!hasScholarship) return false;
+      }
+
       return true;
     });
   },
@@ -197,6 +206,10 @@ const algoliaService = {
 
     if (filters.type) {
       filterStrings.push(`type:"${filters.type}"`);
+    }
+
+    if (filters.scholarships) {
+      filterStrings.push(`scholarships:"${filters.scholarships}"`);
     }
 
     return filterStrings.join(' AND ');
