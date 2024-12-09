@@ -60,9 +60,7 @@ const algoliaService = {
       options: [
         'University',
         'College',
-        'State University',
-        'Private Institution',
-        'Technical/Vocational'
+        'State University'
       ]
     }
   },
