@@ -7,6 +7,7 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect, isAdmin,
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const dropdownRef = useRef(null);
+  const searchContainerRef = useRef(null);
 
   // Use filterOptions from the API
   const filterOptions = searchApi.filterOptions;
@@ -15,6 +16,11 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect, isAdmin,
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowFilters(false);
+      }
+      
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setSearchResults([]);
+        setSearchTerm('');
       }
     }
 
@@ -74,7 +80,7 @@ function FilterControls({ filters, setFilters, schools, onSchoolSelect, isAdmin,
 
   return (
     <div className="filter-controls" ref={dropdownRef}>
-      <div className="search-container">
+      <div className="search-container" ref={searchContainerRef}>
         <span className="search-icon">⌕</span>
         <input
           type="text"
