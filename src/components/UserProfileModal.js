@@ -5,6 +5,7 @@ import defaultAvatar from '../assets/default-avatar.svg';
 import ProfileNotification from './ProfileNotification';
 import { uploadImage, DEFAULT_AVATAR_URL, dataURLtoFile } from '../utils/imageUpload';
 import ImageCropper from './ImageCropper';
+import RecommendedSchools from './RecommendedSchools';
 
 const REGIONS = [
   'National Capital Region (NCR)',
@@ -69,7 +70,7 @@ const CITIES_BY_REGION = {
   // Add more regions and their cities as needed
 };
 
-function UserProfileModal({ onClose }) {
+function UserProfileModal({ onClose, onProfileUpdate }) {
   const auth = getAuth();
   const db = getFirestore();
   const [loading, setLoading] = useState(false);
@@ -78,6 +79,7 @@ function UserProfileModal({ onClose }) {
   const [notification, setNotification] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImage, setCropImage] = useState(null);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
 
   const [userData, setUserData] = useState({
     firstName: '',
@@ -135,6 +137,27 @@ function UserProfileModal({ onClose }) {
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
+
+  useEffect(() => {
+    const checkFirstTimeUser = async () => {
+      if (!auth.currentUser) return;
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          // Check if this is first time by seeing if profile is incomplete
+          setIsFirstTimeUser(!data.firstName || !data.desiredProgram);
+        } else {
+          setIsFirstTimeUser(true);
+        }
+      } catch (error) {
+        console.error('Error checking first time user:', error);
+      }
+    };
+
+    checkFirstTimeUser();
+  }, [auth.currentUser]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -213,14 +236,26 @@ function UserProfileModal({ onClose }) {
 
       // Update Firestore
       const userRef = doc(db, 'users', auth.currentUser.uid);
+      
+      // Get previous data to check if desiredProgram changed
+      const prevDoc = await getDoc(userRef);
+      const prevData = prevDoc.data();
+      const programChanged = prevData?.desiredProgram !== userData.desiredProgram;
+
+      // Update user data
       await updateDoc(userRef, {
         ...userData,
         photoURL,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        hasCompletedProfile: true
       });
 
       showNotification('Profile updated successfully!', 'success');
-      setTimeout(onClose, 1500);
+
+      // Store the program change but don't show recommendations yet
+      if (programChanged && userData.desiredProgram) {
+        onProfileUpdate(userData.desiredProgram);
+      }
 
     } catch (error) {
       console.error('Update error:', error);
@@ -427,6 +462,21 @@ function UserProfileModal({ onClose }) {
             </div>
           </form>
         )}
+
+        <style jsx>{`
+          .recommendations-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+          }
+        `}</style>
       </div>
     </div>
   );

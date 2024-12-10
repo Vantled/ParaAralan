@@ -28,6 +28,8 @@ import TermsOfUse from './components/TermsOfUse';
 import ContactUs from './components/ContactUs';
 import { getStorage } from 'firebase/storage';
 import searchApi from './services/searchApi';
+import ProfilePromptNotification from './components/ProfilePromptNotification';
+import RecommendedSchools from './components/RecommendedSchools';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAb6sQNxCsTDBHhgLDDbjPe38IL9T2Twg",
@@ -636,6 +638,11 @@ function App() {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTermsOfUse, setShowTermsOfUse] = useState(false);
   const [showContactUs, setShowContactUs] = useState(false);
+  const [showProfilePrompt, setShowProfilePrompt] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  const [recommendedProgram, setRecommendedProgram] = useState('');
+  const [pendingRecommendation, setPendingRecommendation] = useState(null);
+  const [userDesiredProgram, setUserDesiredProgram] = useState('');
 
   // Update to use async filtering
   const [filteredSchools, setFilteredSchools] = useState([]);
@@ -723,6 +730,50 @@ function App() {
       localStorage.setItem('hasSeenTour', 'true');
     }
   }, []);
+
+  useEffect(() => {
+    const checkProfileStatus = async () => {
+      if (!user) return;
+
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.data();
+        
+        // Check only essential fields (removed phoneNumber)
+        const isProfileIncomplete = !userData || 
+          !userData.firstName ||
+          !userData.lastName ||
+          !userData.city ||
+          !userData.region ||
+          !userData.desiredProgram;
+        
+        setShowProfilePrompt(isProfileIncomplete);
+      } catch (error) {
+        console.error('Error checking profile status:', error);
+      }
+    };
+
+    checkProfileStatus();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchUserProgram = async () => {
+      if (!user) return;
+
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.data();
+        
+        if (userData?.desiredProgram) {
+          setUserDesiredProgram(userData.desiredProgram);
+        }
+      } catch (error) {
+        console.error('Error fetching user program:', error);
+      }
+    };
+
+    fetchUserProgram();
+  }, [user]);
 
   const handleMapClick = async (event) => {
     if (isAddingPin && isAdmin) {
@@ -1117,6 +1168,35 @@ function App() {
     }
   };
 
+  // Add this function to handle profile updates
+  const handleProfileUpdate = (desiredProgram) => {
+    setPendingRecommendation(desiredProgram);
+  };
+
+  // Add handler for profile modal close
+  const handleProfileModalClose = () => {
+    setShowProfileModal(false);
+    if (pendingRecommendation) {
+      setRecommendedProgram(pendingRecommendation);
+      setShowRecommendations(true);
+      setPendingRecommendation(null);
+    }
+  };
+
+  const handleViewSchoolOnMap = (school) => {
+    if (mapRef.current && school.position) {
+      mapRef.current.flyTo(
+        [school.position.lat, school.position.lng],
+        16,
+        {
+          duration: 1.5,
+          easeLinearity: 0.25
+        }
+      );
+      setSelectedSchool(school);
+    }
+  };
+
   // Add this to protect the main content
   if (!user && showWelcomeModal) {
     return (
@@ -1228,8 +1308,9 @@ function App() {
         schools={schools}
         onSchoolSelect={handleSchoolSearch}
         isAdmin={isAdmin}
-        onAddPin={handleAddPinClick}  // Changed from the inline function
+        onAddPin={() => setIsAddingPin(!isAddingPin)}
         isAddingPin={isAddingPin}
+        setShowRecommendations={setShowRecommendations}
       />
 
       <BookmarkNotification 
@@ -1339,6 +1420,7 @@ function App() {
           message={notification.message}
           type={notification.type}
           onClose={() => setNotification(null)}
+          setShowRecommendations={setShowRecommendations}
         />
       )}
 
@@ -1456,7 +1538,8 @@ function App() {
 
       {showProfileModal && (
         <UserProfileModal
-          onClose={() => setShowProfileModal(false)}
+          onClose={handleProfileModalClose}
+          onProfileUpdate={handleProfileUpdate}
         />
       )}
 
@@ -1470,6 +1553,23 @@ function App() {
 
       {showContactUs && (
         <ContactUs onClose={() => setShowContactUs(false)} />
+      )}
+
+      {showProfilePrompt && (
+        <ProfilePromptNotification 
+          onClose={() => setShowProfilePrompt(false)} 
+        />
+      )}
+
+      {/* Separate Recommendations Modal */}
+      {showRecommendations && (
+        <div className="modal-backdrop">
+          <RecommendedSchools 
+            desiredProgram={userDesiredProgram}
+            onClose={() => setShowRecommendations(false)}
+            onViewMap={handleViewSchoolOnMap}
+          />
+        </div>
       )}
     </div>
   );

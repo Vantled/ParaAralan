@@ -3792,7 +3792,6 @@ body {
     font-family: 'Quicksand', 'Segoe UI', sans-serif;
     letter-spacing: 0.5px;
     white-space: nowrap;
-    margin-left: 20px; /* Add space between filter controls and button */
   }
 
   .add-pin-button:hover {
@@ -6818,8 +6817,7 @@ body {
 
   .directions-header h3 {
     margin: 0;
-    color: #333;
-  }
+    color: #333;  }
 
   .directions-content {
     padding: 15px;
@@ -9297,4 +9295,5 @@ body {
 .reset-buttons .back-button:hover {
   background: rgba(0, 0, 0, 0.15);
 }
+
 
