@@ -45,8 +45,9 @@ function SchoolForm({ onSubmit, onCancel, showNotification }) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      if (formData.type !== 'university' && formData.type !== 'college') {
-        alert('School type must be either "university" or "college"');
+      const validTypes = ['University', 'College', 'State University'];
+      if (!validTypes.includes(formData.type)) {
+        alert('Please select a valid school type');
         return;
       }
       await onSubmit(formData);
@@ -82,9 +83,9 @@ function SchoolForm({ onSubmit, onCancel, showNotification }) {
               required
             >
               <option value="">Select Type</option>
-              {algoliaService.filterOptions.type.options.map((type, index) => (
-                <option key={index} value={type}>{type}</option>
-              ))}
+              <option value="University">University</option>
+              <option value="College">College</option>
+              <option value="State University">State University</option>
             </select>
           </div>
           <div className="form-group">
