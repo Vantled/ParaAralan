@@ -1157,12 +1157,15 @@ function App() {
 
         {/* Login Modal */}
         {showLoginModal && (
-          <div className="modal-backdrop">
-            <div className="modal-content">
+          <div className={`modal-backdrop ${isLoginClosing ? 'closing' : ''}`} 
+               onClick={handleCloseLogin}>
+            <div className={`modal-content ${isLoginClosing ? 'closing' : ''}`} 
+                 onClick={e => e.stopPropagation()}>
+              <button className="close-button" onClick={handleCloseLogin}>×</button>
               <LoginForm 
                 setUser={setUser} 
                 setUserType={setUserType}
-                onClose={() => setShowLoginModal(false)}
+                onClose={handleCloseLogin}
                 showNotification={showNotification}
                 setShowRegisterModal={setShowRegisterModal}
               />
@@ -1172,12 +1175,15 @@ function App() {
 
         {/* Register Modal */}
         {showRegisterModal && (
-          <div className="modal-backdrop">
-            <div className="modal-content">
+          <div className={`modal-backdrop ${isRegisterClosing ? 'closing' : ''}`} 
+               onClick={handleCloseRegister}>
+            <div className={`modal-content ${isRegisterClosing ? 'closing' : ''}`} 
+                 onClick={e => e.stopPropagation()}>
+              <button className="close-button" onClick={handleCloseRegister}>×</button>
               <RegisterForm 
                 setUser={setUser} 
                 setUserType={setUserType}
-                onClose={() => setShowRegisterModal(false)}
+                onClose={handleCloseRegister}
                 showNotification={showNotification}
                 setShowLoginModal={setShowLoginModal}
               />
@@ -1251,41 +1257,6 @@ function App() {
                 Cancel
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add modal states and components */}
-      {showLoginModal && (
-        <div className={`modal-backdrop ${isLoginClosing ? 'closing' : ''}`} 
-             onClick={handleCloseLogin}>
-          <div className={`modal-content ${isLoginClosing ? 'closing' : ''}`} 
-               onClick={e => e.stopPropagation()}>
-            <button className="close-button" onClick={handleCloseLogin}>×</button>
-            <LoginForm 
-              setUser={setUser} 
-              setUserType={setUserType}
-              onClose={handleCloseLogin}
-              showNotification={showNotification}
-              setShowRegisterModal={setShowRegisterModal}
-            />
-          </div>
-        </div>
-      )}
-
-      {showRegisterModal && (
-        <div className={`modal-backdrop ${isRegisterClosing ? 'closing' : ''}`} 
-             onClick={handleCloseRegister}>
-          <div className={`modal-content ${isRegisterClosing ? 'closing' : ''}`} 
-               onClick={e => e.stopPropagation()}>
-            <button className="close-button" onClick={handleCloseRegister}>×</button>
-            <RegisterForm 
-              setUser={setUser} 
-              setUserType={setUserType}
-              onClose={handleCloseRegister}
-              showNotification={showNotification}
-              setShowLoginModal={setShowLoginModal}
-            />
           </div>
         </div>
       )}
