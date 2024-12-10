@@ -88,6 +88,18 @@ const algoliaService = {
           .filter(word => !['of', 'and', 'the', 'in', 'for'].includes(word));
 
         const hasProgram = searchWords.some(word => {
+          // Special handling for Medicine to include Nursing
+          if (word === 'medicine') {
+            return school.academicPrograms?.some(p => 
+              p.name?.toLowerCase().includes('medicine') ||
+              p.name?.toLowerCase().includes('nursing') ||
+              p.programs?.some(prog => 
+                prog.toLowerCase().includes('medicine') ||
+                prog.toLowerCase().includes('nursing')
+              )
+            );
+          }
+          
           return (
             school.academicPrograms?.some(p => 
               p.name?.toLowerCase().includes(word) ||
